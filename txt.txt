@@ -1,0 +1,7 @@
+echo "# PCD-CR231" >> README.md
+git init
+git add README.md
+git commit -m "base commit"
+git branch -M Grupul3
+git remote add origin https://github.com/skrptn1/PCD-CR231.git
+git push -u origin Grupul3
