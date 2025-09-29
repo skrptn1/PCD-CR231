@@ -5,13 +5,13 @@ public class ThreadGroup {
         sys.list();
         sys.setMaxPriority(Thread.MAX_PRIORITY - 2);
 
-     ThreadGroup n = new ThreadGroup("GN");
+     java.lang.ThreadGroup n = new java.lang.ThreadGroup("GN");
      Thread ThA = new Thread (n, "ThA");
      ThA.setPriority(3);
      ThA.start();
      n.list();
     
-     ThreadGroup h = new ThreadGroup(n,"GH");
+     java.lang.ThreadGroup h = new java.lang.ThreadGroup(n,"GH");
      Thread Tha = new Thread (h, "Tha");
      Tha.setPriority(4);
      Tha.start();
@@ -26,8 +26,33 @@ public class ThreadGroup {
      Thc.start();
      h.list();
 
-     ThreadGroup m = newThreadGroup ("GM");
-     Thread 
+     java.lang.ThreadGroup m = new java.lang.ThreadGroup ("GM");
+     Thread Th1 = new Thread (m, "Th1");
+     Th1.setPriority(2);
+     Th1.start();
+     Thread Th2 = new Thread (m, "Th2");
+     Th2.setPriority(3);
+     Th2.start();
+     Thread Th3 = new Thread (m, "Th3");
+     Th3.setPriority(3);
+     Th3.start();
+     m.list();
+    
+     Thread fir1 = new Thread ("fir1");
+     fir1.setPriority(8);
+     fir1.start();
+     
+
+     Thread fir2 = new Thread ("fir2");
+     fir2.setPriority(3);
+     fir2.start();
+     sys.list();
+
+     System.out.println("Programul s-a finisat");
+     
+
+     
+
 
     }
 }
