@@ -69,6 +69,10 @@ public Counter1(int from, int to, int step, int Tablou[]) {
                 i = i - step;
             }
         }
+<<<<<<< HEAD
             System.out.println("Elaborat Ungureanu Vlad,Munteanu Maxim Grupul 3");
+=======
+        System.out.println("Elaborat Ungureanu Vlad, Munteanu Maxim Grupul 3");
+>>>>>>> 980078278dfe7878952351c620303853f87686b1
     }
 }
