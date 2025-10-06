@@ -34,26 +34,42 @@ public Counter1(int from, int to, int step, int Tablou[]) {
         this.Tablou = Tablou;
         this.step=step;
     }
-    @Override
+ @Override
     public void run() {
-        int suma = 1;
+        int suma = 0;
         int counter = 0;
-        int i = to; 
 
-    while (i != from) {
-        if (Tablou[i] % 2 != 0) { 
-            suma += Tablou[i];
-            counter++;
-            if (counter == 2) {
-                System.out.println(Thread.currentThread().getName() + " Suma: " + suma);
-                suma = 0;
-                counter = 0;
+        if (from < to) {
+            int i = from;
+            while (i <= to) {
+                if (Tablou[i] % 2 != 0) {
+                    suma += Tablou[i];
+                    counter++;
+                    if (counter == 4) { 
+                    System.out.println(Thread.currentThread().getName() + " Suma (2+2 impare): " + suma);
+                        suma = 0;
+                        counter = 0;
+                    }
+                }
+                i = i + step;
             }
         } 
-        i=i+step;
-    }
- }
- 
-}
 
+        else {
+            int i = from;
+            while (i >= to) {
+                if (Tablou[i] % 2 != 0) {
+                    suma += Tablou[i];
+                    counter++;
+                    if (counter == 4) { 
+                    System.out.println(Thread.currentThread().getName() + " Suma (2+2 impare): " + suma);
+                        suma = 0;
+                        counter = 0;
+                    }
+                }
+                i = i - step;
+            }
+        }
+    }
+}
 
