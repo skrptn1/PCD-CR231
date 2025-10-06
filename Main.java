@@ -70,6 +70,7 @@ public Counter1(int from, int to, int step, int Tablou[]) {
                 i = i - step;
             }
         }
+        System.out.println("Elaborat Ungureanu Vlad, Munteanu Maxim Grupul 3");
     }
 }
 
