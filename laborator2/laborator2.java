@@ -1,3 +1,4 @@
+package laborator2;
 public class laborator2 {
 public static void main(String[] args) {
     ThreadGroup sys =
