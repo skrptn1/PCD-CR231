@@ -1,4 +1,4 @@
-package src.Pricop_Alexandru.lab1;
+package Pricop_Alexandru.lab1;
 
 import java.lang.*;
 
