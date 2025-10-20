@@ -1,3 +1,5 @@
+package lab2;
+
 class Array {
     int[] a;
     int currentIndex = 0;

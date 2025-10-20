@@ -1,3 +1,5 @@
+package lab1;
+
 class Fir extends Thread {
     String name;
 
@@ -70,4 +72,3 @@ public class Lab1 {
 
     }
 }
-

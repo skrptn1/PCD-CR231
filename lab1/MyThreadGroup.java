@@ -1,8 +1,9 @@
+package lab1;
+
 public class MyThreadGroup {
 
     public static void main(String[] args) {
-        ThreadGroup sys
-                = Thread.currentThread().getThreadGroup();
+        ThreadGroup sys = Thread.currentThread().getThreadGroup();
 
         sys.setMaxPriority(Thread.MAX_PRIORITY);
         Thread curr = Thread.currentThread();
@@ -65,7 +66,7 @@ public class MyThreadGroup {
     }
 }
 
-///:~
+/// :~
 
 class Fir extends Thread {
 
@@ -81,7 +82,7 @@ class Fir extends Thread {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-// TODO Auto-generated catch block
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
