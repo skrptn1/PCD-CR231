@@ -40,7 +40,7 @@ class Thread1 implements Runnable {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            String info = "Thread " + this.name + ": Au efectuat lucrarea Buga Pavel si Bivol Daniel, grupa CR-231 var1.";
+            String info = "Thread " + this.name + ": Au efectuat lucrarea Buga Pavel si Bivol Daniel, \ngrupa CR-231 var1.";
             for (char j : info.toCharArray()) {
                 try {
                     System.out.print(j);
