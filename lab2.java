@@ -94,7 +94,7 @@ class Thread2 implements Runnable {
 
 class Main {
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Interfață Text");
+        JFrame frame = new JFrame("Interfață");
         frame.setSize(600, 400);
 
         JTextArea textArea = new JTextArea();
