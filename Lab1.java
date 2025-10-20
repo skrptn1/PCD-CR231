@@ -16,7 +16,7 @@ class Fir extends Thread {
     }
 }
 
-public class Main {
+public class Lab1 {
     public static void main(String[] args) {
 
         ThreadGroup G2 = new ThreadGroup("G2");
@@ -70,3 +70,4 @@ public class Main {
 
     }
 }
+
