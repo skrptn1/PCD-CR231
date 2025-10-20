@@ -1,7 +1,7 @@
-public class seminar {
+public class seminar3 {
     public static void main(String[] args) {
-        ThreadCifre t1 = new ThreadCifre("Cifre");
-        ThreadLitere t2 = new ThreadLitere("Litere");
+        ThreadCifre t1 = new ThreadCifre("Cifre",1);
+        ThreadCifre t2 = new ThreadCifre("Cifre4",2);
 
         t1.setName("Cifre");
         t2.setName("Litere");
@@ -13,9 +13,11 @@ public class seminar {
 
 class ThreadCifre extends Thread {
     String nume;
+    private int alegere;
 
-    public ThreadCifre(String nume) {
+    public ThreadCifre(String nume,int alegere) {
         this.nume = nume;
+        this.alegere=alegere;
     }
 
     public void run() {
@@ -30,8 +32,9 @@ class ThreadCifre extends Thread {
                 System.out.println("Cifre: Firul " + Thread.currentThread().getName() +  " a generat cifra " + cifra); 
             }
         }
-        try {
-                Thread.sleep(50);
+        if(alegere==1){
+            try {
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 System.out.println("Firul Cifre a fost întrerupt!");
             }
@@ -45,24 +48,10 @@ class ThreadCifre extends Thread {
             }
         }
         System.out.println();
-    }
-}
-
-class ThreadLitere extends Thread {
-    String nume;
-
-    public ThreadLitere(String nume) {
-        this.nume = nume;
-    }
-
-    public void run() {
-        char lit[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'};
-
-        for (int i = 0; i < 10; i++) {
-            int l = (int) (Math.random() * 10);
-            System.out.println("Litere: Firul " + getName() + " a generat litera " + lit[l]); 
         }
-        try {
+        else
+        {
+             try {
                 Thread.sleep(2500);
             } catch (InterruptedException e) {
                 System.out.println("Firul Litere a fost întrerupt!");
@@ -76,7 +65,6 @@ class ThreadLitere extends Thread {
             }
         }
         System.out.println();
+        }
     }
 }
-
-
