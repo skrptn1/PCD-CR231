@@ -3,6 +3,8 @@ public class Main {
     public static void main(String[] args) {
 
         Counter1 cnt1, cnt2;
+        NameThread nameThread;
+
 
         int Tablou[] = new int[101];
         for (int i = 0; i < 100; i++) {
@@ -13,11 +15,19 @@ public class Main {
 
         cnt1 = new Counter1 (0, 99, 1, Tablou);
         cnt2 = new Counter1 (99, 0, 1, Tablou);
+        nameThread = new NameThread("Ungureanu Vlad-Grupul 3");
+
 
         cnt1.start();
         cnt1.setName("Unu");
         cnt2.start();
         cnt2.setName("Doi");
+        try {
+            cnt1.join();
+            cnt2.join();
+        } catch (Exception e) {
+        }
+        nameThread.start();
     } 
 }
 class Counter1 extends Thread {
@@ -69,7 +79,26 @@ public Counter1(int from, int to, int step, int Tablou[]) {
                 i = i - step;
             }
         }
-            System.out.println("Elaborat Ungureanu Vlad,Munteanu Maxim Grupul 3");
 
     }
+}
+class NameThread extends Thread {
+    String name;
+
+    public NameThread(String name) {
+        this.name = name;
+
+    }
+
+    @Override
+    public void run() {
+       for (int i = 0; i < name.length(); i++) {
+            System.out.print(name.charAt(i));
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+    }
+}
 }
