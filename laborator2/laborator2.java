@@ -16,7 +16,6 @@ Th22.start();
 sys.list();
 
 
-
 ThreadGroup grup2 = new ThreadGroup("G2");
 Thread Th1 = new Thread(grup2, "Th1");
 Th1.setPriority(Thread.MAX_PRIORITY -5);
@@ -30,7 +29,6 @@ Thread Th33 = new Thread(grup2, "Th33");
 Th33.setPriority(Thread.MAX_PRIORITY -3);
 Th33.start();
 grup2.list();
-
 
 
 ThreadGroup grup1 = new ThreadGroup("G1");
