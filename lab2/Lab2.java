@@ -45,11 +45,11 @@ class Th1 extends Thread {
         System.out.println("\n");
         for (int i = 0; i < a.length; i++) {
             if (a[i] % 2 == 0) {
-                // System.out.print(i + " ");
                 if (counter <= 1) {
                     s = s + i;
                     counter++;
                     if (counter == 2) {
+                        System.out.println("Victor " + s);
                         sumArray.add(s);
                         s = 0;
                         counter = 0;
@@ -60,7 +60,7 @@ class Th1 extends Thread {
         }
 
         System.out.println("\n");
-        sumArray.print();
+        // sumArray.print();
     }
 }
 
