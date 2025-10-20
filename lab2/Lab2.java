@@ -49,7 +49,7 @@ class Th1 extends Thread {
                     s = s + i;
                     counter++;
                     if (counter == 2) {
-                        dfgdf
+                        dfgdfasdasdz
                         System.out.println("Victor " + s);
                         sumArray.add(s);
                         s = 0;
