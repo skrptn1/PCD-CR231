@@ -5,7 +5,6 @@ public class Main {
         Counter1 cnt1, cnt2;
         NameThread nameThread;
 
-
         int Tablou[] = new int[101];
         for (int i = 0; i < 100; i++) {
             Tablou[i] = (int) (Math.random() * 99);
@@ -15,14 +14,13 @@ public class Main {
 
         cnt1 = new Counter1 (0, 99, 1, Tablou);
         cnt2 = new Counter1 (99, 0, 1, Tablou);
-        nameThread = new NameThread("Ungureanu Vlad-Grupul 3");
-
+        nameThread = new NameThread("Ungureanu Vlad, Munteanu Maxim -Grupul 3");
 
         cnt1.start();
         cnt1.setName("Unu");
         cnt2.start();
         cnt2.setName("Doi");
-        try {
+         try {
             cnt1.join();
             cnt2.join();
         } catch (Exception e) {
@@ -102,4 +100,3 @@ class NameThread extends Thread {
     }
 }
 }
-.
