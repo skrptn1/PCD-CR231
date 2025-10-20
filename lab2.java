@@ -113,7 +113,7 @@ class Main {
         StringBuilder sb = new StringBuilder("Tablou: \n");
         for (int i = 0; i < tablou.length; i++) {
             sb.append(tablou[i]).append(" ");
-            if(i%10==0 && i!=0){
+            if(i%30==0 && i!=0){
                 sb.append("\n");
             }
         }
