@@ -1,4 +1,4 @@
-package lab2;
+package lab2.old;
 
 class Array {
 
@@ -92,7 +92,8 @@ class Th2 implements Runnable {
                 } else {
                     s2 = i;
                     s = s1 + s2;
-                    System.out.println("Mihai " + this.name + " poz " + s1 + " + " + s2 + " = " + s
+                    System.out.println("Mihai " + this.name + " poz " + s1 + " + " + s2 + " = " +
+                            s
                             + " val " + tablou[s1] + " " + tablou[s2]);
 
                     s1 = -1;
