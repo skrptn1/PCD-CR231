@@ -10,8 +10,8 @@ import javafx.stage.Stage;
 public class App extends Application {
 
     private TextArea outputArea = new TextArea();
-    private Button startBtn = new Button("Start Threads");
-    private Button clearBtn = new Button("Clear Output");
+    private Button startBtn = new Button("Start");
+    private Button clearBtn = new Button("Sterge");
     private int[] tablou;
 
     @Override
@@ -38,7 +38,7 @@ public class App extends Application {
             tablou[i] = (int) (Math.random() * (end - start)) + start;
         }
 
-        appendText("Generated Array:\n");
+        appendText("Tabloul generat:\n");
         for (int i : tablou)
             appendText(i + " ");
         appendText("\n\n");
