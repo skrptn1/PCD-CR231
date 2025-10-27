@@ -19,22 +19,21 @@ public class Sumele {
 
     
 
-        t3.start();
-         try {
-                t3.join();
-            } catch (InterruptedException e) {
-                System.out.println("Firul a fost întrerupt!");
-            }
-            System.out.println();
-        t4.start();
-       
-            try {
-                t3.join();
-                t4.join();
-            } catch (InterruptedException e) {
-                System.out.println("Firul a fost întrerupt!");
-            }
-            System.out.println();
+         t3.start();
+        try {
+            t3.join();
+        } catch (InterruptedException e) {
+            System.out.println("Firul a fost întrerupt!");
+        }
+
+        System.out.println();
+
+       t4.start();
+        try {
+            t4.join(); 
+        } catch (InterruptedException e) {
+            System.out.println("Firul a fost întrerupt!");
+        }
            
 
         System.out.println();
@@ -62,7 +61,7 @@ class FirThread extends Thread {
         this.mas = mas;
     }
 
-    @Override
+
     public void run() {
         if (alegere == 3) {
             int i = 0;
@@ -71,7 +70,7 @@ class FirThread extends Thread {
                     for (int j = i + 1; j < mas.length; j++) {
                         if (mas[j] % 2 == 0) {
                             int produs = mas[i] * mas[j];
-                            System.out.println("Thread " + alegere + " : " + mas[i] + " * " + mas[j] + " = " + produs);
+                            System.out.println("Thread " + alegere + " - " + mas[i] + " * " + mas[j] + " = " + produs);
                             i = j; 
                             break;
                         }
