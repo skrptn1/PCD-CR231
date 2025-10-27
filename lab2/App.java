@@ -46,9 +46,6 @@ public class App extends Application {
             }
             appendText(tablou[i] + " ");
         }
-        for (int i : tablou)
-            appendText(i + " ");
-        appendText("\n\n");
 
         Th1 th1 = new Th1("Th1", tablou, this);
         Th1 th2 = new Th1("Th2", tablou, this);

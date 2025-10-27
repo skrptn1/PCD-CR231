@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Lab1",
+      "request": "launch",
+      "mainClass": "lab1.Lab1",
+      "projectName": "New folder_3cea76be"
+    },
+    {
+      "type": "java",
       "name": "App",
       "request": "launch",
       "mainClass": "lab3.App",
