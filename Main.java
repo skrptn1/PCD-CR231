@@ -23,9 +23,9 @@ public class Main {
         cnt2.start();
         cnt2.setName("VLAD-Doi");
         cnt3.start();
-        cnt3.setName("Maxim-Trei");
+        cnt3.setName("MAXIM-Trei");
         cnt4.start();
-        cnt4.setName("Maxim-Patru");
+        cnt4.setName("MAXIM-Patru");
          try {
             cnt1.join();
             cnt2.join();
