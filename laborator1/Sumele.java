@@ -15,19 +15,24 @@ public class Sumele {
 
         Thread t1 = new Thread(new Fir(1, mas));
         Thread t2 = new Thread(new Fir(2, mas));
+        FirThread t3 = new FirThread(3, mas);
+        FirThread t4 = new FirThread(4, mas);
 
         t1.start();
         t2.start();
-
+        t3.start();
+        t4.start();
 
         try {
             t1.join();
             t2.join();
+            t3.join();
+            t4.join();
         } catch (InterruptedException e) {
             System.out.println("Firul a fost întrerupt!");
         }
 
-        String name = "Furtuna Rodion CR-231";
+        String name = "Furtuna Rodion CR-231\nMaletchi Mirela CR-231";
         for (int i = 0; i < name.length(); i++) {
             System.out.print(name.charAt(i));
             try {
@@ -62,7 +67,7 @@ class Fir implements Runnable {
                         primulGasit = true;
                     } else {
                         int produs = primulPar * numar;
-                        System.out.println("Firul " + alegere + " : " + primulPar + " * " + numar + " = " + produs);
+                        System.out.println("FIRUL " + alegere + " : " + primulPar + " * " + numar + " = " + produs);
                         primulGasit = false;
                     }
                 }
@@ -80,6 +85,50 @@ class Fir implements Runnable {
                         int produs = primulPar * numar;
                         System.out.println("Firul " + alegere + " : " + primulPar + " * " + numar + " = " + produs);
                         primulGasit = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
+class FirThread extends Thread {
+    int alegere;
+    int[] mas;
+
+    public FirThread(int id, int[] mas) {
+        this.alegere = id;
+        this.mas = mas;
+    }
+
+
+    public void run() {
+        if (alegere == 3) {
+            int i = 0;
+            while (i < mas.length - 1) {
+                if (mas[i] % 2 == 0) {
+                    for (int j = i + 1; j < mas.length; j++) {
+                        if (mas[j] % 2 == 0) {
+                            int produs = mas[i] * mas[j];
+                            System.out.println("Thread " + alegere + " - " + mas[i] + " * " + mas[j] + " = " + produs);
+                            i = j; 
+                            break;
+                        }
+                    }
+                }
+                i++;
+            }
+
+        } else if (alegere == 4) {
+            for (int i = mas.length - 1; i > 0; i--) {
+                if (mas[i] % 2 == 0) {
+                    for (int j = i - 1; j >= 0; j--) {
+                        if (mas[j] % 2 == 0) {
+                            int produs = mas[i] * mas[j];
+                            System.out.println("Thread " + alegere + " - " + mas[i] + " * " + mas[j] + " = " + produs);
+                            i = j; 
+                            break;
+                        }
                     }
                 }
             }
