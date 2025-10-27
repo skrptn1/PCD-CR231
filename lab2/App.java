@@ -39,6 +39,12 @@ public class App extends Application {
         }
 
         appendText("Tabloul generat:\n");
+        for (int i = 0; i < tablou.length; i++) {
+            if (i == 50) {
+                appendText("\n");
+            }
+            appendText(tablou[i] + " ");
+        }
         for (int i : tablou)
             appendText(i + " ");
         appendText("\n\n");
