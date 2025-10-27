@@ -84,7 +84,7 @@ class Fir implements Runnable {
                         primulGasit = true;
                     } else {
                         int produs = primulPar * numar;
-                        System.out.println("Firul " + alegere + " : " + primulPar + " * " + numar + " = " + produs);
+                        System.out.println("FIRUL " + alegere + " : " + primulPar + " * " + numar + " = " + produs);
                         primulGasit = false;
                     }
                 }
