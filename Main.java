@@ -2,7 +2,7 @@
 public class Main {
     public static void main(String[] args) {
 
-        Counter1 cnt1, cnt2;
+        Counter1 cnt1, cnt2, cnt3, cnt4;
         NameThread nameThread;
 
         int Tablou[] = new int[101];
@@ -14,15 +14,23 @@ public class Main {
 
         cnt1 = new Counter1 (0, 99, 1, Tablou);
         cnt2 = new Counter1 (99, 0, 1, Tablou);
+        cnt3 = new Counter1 (0, 99, 1, Tablou);
+        cnt4 = new Counter1 (99, 0, 1, Tablou);
         nameThread = new NameThread("Ungureanu Vlad, Munteanu Maxim -Grupul 3");
 
         cnt1.start();
         cnt1.setName("Unu");
         cnt2.start();
         cnt2.setName("Doi");
+        cnt3.start();
+        cnt3.setName("Trei");
+        cnt4.start();
+        cnt4.setName("Patru");
          try {
             cnt1.join();
             cnt2.join();
+            cnt3.join();
+            cnt4.join();
         } catch (Exception e) {
         }
         nameThread.start();
