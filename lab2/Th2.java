@@ -21,7 +21,7 @@ class Th2 implements Runnable {
         int i = from;
         while (i >= to) {
             if (tablou[i] % 2 == 0) {
-                if (s1 == -1)
+                if (s1 == -1){
                     s1 = i;
             } else {
                 s2 = i;
@@ -34,7 +34,8 @@ class Th2 implements Runnable {
                 s1 = -1;
                 s2 = -1;
             }
+          i -= step;
         }
-        i -= step;
+      }
     }
 }
