@@ -1,13 +1,12 @@
 public class Sumele {
     public static void main (String [] args){
         
-        System.out.println("Lista de valori:");
+
 
             int[] mas = new int[100];
 
         for (int i=0; i<mas.length; i++) {
             mas[i] = (int)(Math.random() * 100) + 1;
-             System.out.print(mas[i]+ " ");
         }
 
          System.out.println();
@@ -20,16 +19,13 @@ public class Sumele {
     
 
          t3.start();
-        try {
-            t3.join();
-        } catch (InterruptedException e) {
-            System.out.println("Firul a fost întrerupt!");
-        }
+      
 
         System.out.println();
 
        t4.start();
         try {
+            t3.join();
             t4.join(); 
         } catch (InterruptedException e) {
             System.out.println("Firul a fost întrerupt!");
