@@ -1,4 +1,6 @@
-public class seminar3 {
+package seminare;
+
+public class seminar3{
     public static void main(String[] args) {
         ThreadCifre t1 = new ThreadCifre("Cifre",1);
         ThreadCifre t2 = new ThreadCifre("Cifre4",2);
