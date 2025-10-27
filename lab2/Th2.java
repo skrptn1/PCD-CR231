@@ -26,7 +26,7 @@ class Th2 implements Runnable {
                 } else {
                     s2 = i;
                     s = s1 + s2;
-                    String output = "MIHAI " + this.name + " poz " + s1 + " + " + s2 + " = " +
+                    String output = "MIHAIL " + this.name + " poz " + s1 + " + " + s2 + " = " +
                             s + " val " + tablou[s1] + " " + tablou[s2] + "\n";
                     app.appendText(output);
                     System.out.println(output);
