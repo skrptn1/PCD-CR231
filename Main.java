@@ -19,9 +19,9 @@ public class Main {
         nameThread = new NameThread("Ungureanu Vlad, Munteanu Maxim -Grupul 3");
 
         cnt1.start();
-        cnt1.setName("VLAD-Unu");
+        cnt1.setName("vlad-Unu");
         cnt2.start();
-        cnt2.setName("VLAD-Doi");
+        cnt2.setName("vlad-Doi");
         cnt3.start();
         cnt3.setName("MAXIM-Trei");
         cnt4.start();
