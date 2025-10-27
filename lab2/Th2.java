@@ -19,6 +19,7 @@ class Th2 implements Runnable {
     public void run() {
         int s1 = -1, s2 = -1, s;
         int i = from;
+        // dfgsfgfsdg
         while (i >= to) {
             if (tablou[i] % 2 == 0) {
                 if (s1 == -1) {

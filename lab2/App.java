@@ -17,6 +17,7 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
         VBox root = new VBox(10);
+        // git pull test
         root.setStyle("-fx-padding: 15;");
         root.getChildren().addAll(startBtn, clearBtn, outputArea);
         VBox.setVgrow(outputArea, Priority.ALWAYS);
