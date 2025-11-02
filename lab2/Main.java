@@ -12,42 +12,52 @@ public class Main {
     }
 
     private static void createUI() {
-        JFrame frame = new JFrame("Lab2 - Th1 Thread Demo");
+        JFrame frame = new JFrame("Lab2 - Threads Th1 și Th2");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 500);
+        frame.setSize(700, 500);
         frame.setLayout(new BorderLayout());
 
         textArea = new JTextArea();
         textArea.setEditable(false);
-        textArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        textArea.setFont(new Font("Consolas", Font.PLAIN, 14));
         JScrollPane scrollPane = new JScrollPane(textArea);
 
         frame.add(scrollPane, BorderLayout.CENTER);
         frame.setVisible(true);
 
-        ruleazaTh1();
+        ruleazaThreaduri();
     }
 
-    private static void ruleazaTh1() {
+    private static void ruleazaThreaduri() {
+        
         int[] mas = new int[100];
         Random random = new Random();
         for (int i = 0; i < mas.length; i++) {
             mas[i] = random.nextInt(100) + 1;
         }
 
+        
         for (int num : mas) {
             textArea.append(num + " ");
         }
         textArea.append("\n\n");
 
+        
         Th1 th1Runnable = new Th1(mas, textArea);
         Thread th1 = new Thread(th1Runnable);
-        th1.start();
 
+        Th2 th2Thread = new Th2(mas, textArea);
+
+        
+        th1.start();
+        th2Thread.start();
+
+        
         new Thread(() -> {
             try {
                 th1.join();
-                afiseazaMesajFinal("Lucrarea a fost efectuată de Pricop Alexandru");
+                th2Thread.join();
+                afiseazaMesajFinal("Lucrarea a fost efectuată de Pricop Alexandru si Burlea Vlad.");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
