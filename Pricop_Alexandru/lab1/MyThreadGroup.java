@@ -10,9 +10,6 @@ class Fir extends Thread {
 
     @Override
     public void run() {
-//        System.out.println("Firul " + getName() +
-//                " | Grup: " + getThreadGroup().getName() +
-//                " | Prioritate: " + getPriority());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
