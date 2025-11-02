@@ -22,7 +22,7 @@ class Th2 extends Thread {
         appendText("\nTh2: Suma produselor numerelor impare două câte două (de la ultimul) = " + sumResult + "\n");
     }
 
-    // Găsește numerele impare începând de la sfârșitul vectorului
+    
     private List<Integer> gasesteNumereImpareInvers() {
         List<Integer> listaImpare = new ArrayList<>();
         for (int i = mas.length - 1; i >= 0; i--) {
@@ -34,7 +34,7 @@ class Th2 extends Thread {
         return listaImpare;
     }
 
-    // Calculează produsele numerelor impare două câte două, din listă
+    
     private void calculeazaProduseInvers(List<Integer> listaImpare) {
         for (int i = 0; i < listaImpare.size() - 1; i += 2) {
             int num1 = listaImpare.get(i);
