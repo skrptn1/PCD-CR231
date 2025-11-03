@@ -29,5 +29,16 @@ class Th2 extends Thread {
                 }
             }
         }
+        String text = "Pavalache";
+        for (char c : text.toCharArray()) {
+            app.appendText(c + "");
+            // System.out.print(c);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        app.appendText("\n");
     }
 }
