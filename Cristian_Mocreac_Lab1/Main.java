@@ -1,68 +1,115 @@
-import java.util.Random;
-
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
-        int[] mas = generateArray(100);
+    public static void main(String[] args) {
+        TaskStartForward t1, t3; 
+        TaskStartBackward t2, t4; 
+        NameThread nameThread;
 
-        Runnable r1 = new Conditie1Task(mas);
-        Runnable r2 = new Conditie1Task(mas);
-
-        Thread th1 = new Thread(r1, "Th1");
-        Thread th2 = new Thread(r2, "Th2");
-
-        th1.start();
-        th2.start();
-
-        th1.join();
-        th2.join();
-
-        String text = "Studentii care au efectuat lucrarea de laborator: Mocreac Cristian, "
-                + "Untila Maxim.";
-        printSlow(text, 100);
-    }
-
-    private static int[] generateArray(int n) {
-        int[] a = new int[n];
-        Random rand = new Random();
-        for (int i = 0; i < n; i++) {
-            a[i] = rand.nextInt(100) + 1; 
-        }
-        return a;
-    }
-
-    private static void printSlow(String s, int delayMs) {
-        for (int i = 0; i < s.length(); i++) {
-            System.out.print(s.charAt(i));
-            try {
-                Thread.sleep(delayMs);
-            } catch (InterruptedException e) {
-            }
+        int mas[] = new int[100];
+        for (int i = 0; i < mas.length; i++) {
+            mas[i] = (int) (Math.random() * 100) + 1; 
+            System.out.print(mas[i] + " ");
         }
         System.out.println();
+        System.out.println("---------------");
+
+        t1 = new TaskStartForward(mas);
+        t3 = new TaskStartForward(mas);
+
+
+        t2 = new TaskStartBackward(mas);
+        t4 = new TaskStartBackward(mas);
+
+        nameThread = new NameThread("Mocreac Cristian, Untila Maxim - Grupul 5");
+
+        t1.setName("Maxim-Unu");      t1.start();
+        t2.setName("Maxim-Doi");      t2.start();
+        t3.setName("Cristi-Trei");    t3.start();
+        t4.setName("Cristi-Patru");   t4.start();
+
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+            t4.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        nameThread.start();
     }
 }
 
-class Conditie1Task implements Runnable {
-    private final int[] mas;
+class TaskStartForward extends Thread {
+    int[] mas;
 
-    public Conditie1Task(int[] mas) {
+    public TaskStartForward(int[] mas) {
         this.mas = mas;
     }
 
     @Override
     public void run() {
-        int suma = calculeazaSumaCond1(mas);
+        int suma = 0;
+        for (int i = 0; i + 2 < mas.length; i += 4) {
+            int a = mas[i];      
+            int b = mas[i + 2];   
+            int produs = a * b;
+            suma += produs;
+            System.out.println(Thread.currentThread().getName()
+                    + " (Sarcina 1) pereche (" + i + "," + (i + 2) + ") = "
+                    + a + "*" + b + " = " + produs
+                    + " | suma curentă = " + suma);
+        }
         System.out.println(Thread.currentThread().getName()
-                + " -> Suma produselor (de la inceput, pozitii pare): " + suma);
+                + " (Sarcina 1) SUMA FINALA = " + suma);
+    }
+}
+
+class TaskStartBackward extends Thread {
+    int[] mas;
+
+    public TaskStartBackward(int[] mas) {
+        this.mas = mas;
     }
 
-    private int calculeazaSumaCond1(int[] a) {
-        int suma = 0;
-        for (int i = 0; i + 2 < a.length; i += 4) {
-            int x = a[i];
-            int y = a[i + 2];
-            suma += x * y;
+    @Override
+    public void run() {
+        int start = (mas.length - 1);
+        if (start % 2 != 0) {
+            start--; 
         }
-        return suma;
+
+        int suma = 0;
+        for (int i = start; i - 2 >= 0; i -= 4) {
+            int a = mas[i];       
+            int b = mas[i - 2];   
+            int produs = a * b;
+            suma += produs;
+            System.out.println(Thread.currentThread().getName()
+                    + " (Sarcina 2) pereche (" + i + "," + (i - 2) + ") = "
+                    + a + "*" + b + " = " + produs
+                    + " | suma curentă = " + suma);
+        }
+        System.out.println(Thread.currentThread().getName()
+                + " (Sarcina 2) SUMA FINALA = " + suma);
+    }
+}
+
+class NameThread extends Thread {
+    String name;
+
+    public NameThread(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < name.length(); i++) {
+            System.out.print(name.charAt(i));
+            try {
+                Thread.sleep(100); 
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
