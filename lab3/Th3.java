@@ -15,12 +15,12 @@ public class Th3 extends Thread {
 
     @Override
     public void run() {
-        // 1️⃣ Parcurge intervalul 120–690
+        
         app.appendText("Pornire Th3 (interval crescător 120–690):\n");
         for (int i = 120; i <= 690; i++) {
-            app.appendText(i + " ");
+            app.appendText("Th3: " + i + "\n");
             try {
-                Thread.sleep(5); // pauză mică pentru claritate
+                Thread.sleep(5); 
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
