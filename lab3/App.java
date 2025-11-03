@@ -51,9 +51,9 @@ public class App extends Application {
         appendText("\n\n");
 
         Th1 th1 = new Th1("Th1", tablou, this);
-        Th1 th2 = new Th1("Th2", tablou, this);
-        Th2 th3 = new Th2("Th3", end - 1, start - 1, 1, tablou, this);
-        Th2 th4 = new Th2("Th4", end - 1, start - 1, 1, tablou, this);
+        Th1 th2 = new Th2("Th2", tablou, this);
+        Th2 th3 = new Th3("Th3", end - 1, start - 1, 1, tablou, this);
+        Th2 th4 = new Th4("Th4", end - 1, start - 1, 1, tablou, this);
 
         new Thread(th1).start();
         new Thread(th2).start();

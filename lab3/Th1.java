@@ -1,6 +1,6 @@
 package lab3;
 
-class Th1 implements Runnable {
+class Th1 extends Thread {
 
     String name = "Th1";
     int[] a = null;
