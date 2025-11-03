@@ -6,11 +6,6 @@ class Th1 extends Thread {
     int[] a = null;
     App app;
 
-    public Th1(String name, int[] a) {
-        this.a = a;
-        this.name = name;
-    }
-
     public Th1(String name, int[] a, App app) {
         this.a = a;
         this.name = name;
@@ -21,15 +16,13 @@ class Th1 extends Thread {
         int s = 0;
         int counter = 0;
         app.appendText("\n");
-        // System.out.println("\n");
-        for (int i = 0; i < a.length; i++) {
+        for (int i = a.length - 1; i >= 0; i--) {
             if (a[i] % 2 == 0) {
                 if (counter <= 1) {
                     s = s + a[i];
                     counter++;
                     if (counter == 2) {
                         app.appendText("Victor " + name + " " + s + "\n");
-                        // System.out.println("Victor " + name + " " + s);
                         s = 0;
                         counter = 0;
                     }
