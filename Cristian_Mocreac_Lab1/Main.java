@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class lab1 {
+public class Main {
     public static void main(String[] args) throws InterruptedException {
         int[] mas = generateArray(100);
 
@@ -16,8 +16,8 @@ public class lab1 {
         th1.join();
         th2.join();
 
-        String text = "Studentii care au efectuat lucrarea de laborator: Popescu Ion, "
-                + "Ionescu Maria, Gherman Mihai.";
+        String text = "Studentii care au efectuat lucrarea de laborator: Mocreac Cristian, "
+                + "Untila Maxim.";
         printSlow(text, 100);
     }
 
@@ -42,7 +42,6 @@ public class lab1 {
     }
 }
 
-// clasa de lucru pentru Conditia 1
 class Conditie1Task implements Runnable {
     private final int[] mas;
 
@@ -59,7 +58,6 @@ class Conditie1Task implements Runnable {
 
     private int calculeazaSumaCond1(int[] a) {
         int suma = 0;
-        // perechi (0,2), (4,6), (8,10) ... adica index par, urmatorul index par
         for (int i = 0; i + 2 < a.length; i += 4) {
             int x = a[i];
             int y = a[i + 2];
