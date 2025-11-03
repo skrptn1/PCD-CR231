@@ -15,8 +15,8 @@ public class lab3 {
 
         Counter1 cnt1 = new Counter1(0, 399, 1, Tablou);
         Counter1 cnt2 = new Counter1(400, 798, 1, Tablou);
-        Counter1 cnt3 = new Counter1(1784, 2111, 1, Tablou); // de la sfârșit
-        Counter1 cnt4 = new Counter1(1456, 1783, 1, Tablou); // de la sfârșit
+        Counter1 cnt3 = new Counter1(1784, 2111, 1, Tablou); 
+        Counter1 cnt4 = new Counter1(1456, 1783, 1, Tablou); 
 
         cnt1.setName("vlad-Unu");
         cnt2.setName("vlad-Doi");
@@ -69,8 +69,8 @@ class Counter1 extends Thread {
                     if (count == 4) {
                         synchronized(System.out) {
                             System.out.println(getName() + " -> Suma primelor 2 impare: " + suma1);
-                            System.out.println(getName() + " -> Suma următoarelor 2 impare: " + suma2);
-                            System.out.println(getName() + " -> Suma totală a celor 4 impare: " + (suma1 + suma2));
+                            System.out.println(getName() + " -> Suma urmatoarelor 2 impare: " + suma2);
+                            System.out.println(getName() + " -> Suma totala a celor 4 impare: " + (suma1 + suma2));
                             System.out.println("---------------------------");
                         }
                         count = 0;
@@ -89,8 +89,8 @@ class Counter1 extends Thread {
                     if (count == 4) {
                         synchronized(System.out) {
                             System.out.println(getName() + " -> Suma primelor 2 impare: " + suma1);
-                            System.out.println(getName() + " -> Suma următoarelor 2 impare: " + suma2);
-                            System.out.println(getName() + " -> Suma totală a celor 4 impare: " + (suma1 + suma2));
+                            System.out.println(getName() + " -> Suma urmatoarelor 2 impare: " + suma2);
+                            System.out.println(getName() + " -> Suma totala a celor 4 impare: " + (suma1 + suma2));
                             System.out.println("---------------------------");
                         }
                         count = 0;
