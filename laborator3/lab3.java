@@ -1,5 +1,5 @@
 package laborator3;
 
-public class main {
+public class lab3 {
     
 }
