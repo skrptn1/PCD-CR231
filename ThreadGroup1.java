@@ -1,41 +1,44 @@
 public class ThreadGroup1 {
-public static void main(String[] args) {
-    ThreadGroup sys =
-        Thread.currentThread().getThreadGroup();
-    sys.list();
-    Thread curr = Thread.currentThread();
-    curr.setPriority(curr.getPriority() - 2);
-sys.list();
-Thread Th1 = new Thread(sys,"Th1");
-    Th1.start();
-Thread Th2 = new Thread(sys,"Th2");
-    Th2.start();
-    sys.list();
-ThreadGroup g = new ThreadGroup("GV");
-Thread ThA = new Thread(g, "ThA");
-    ThA.start();
-    g.list();
-ThreadGroup o = new ThreadGroup("GO");
-ThreadGroup z = new ThreadGroup(o, "GZ");
-Thread Tha = new Thread(z, "Tha");
-    Tha.setPriority(1);
-    Tha.start();
-Thread Thb = new Thread(z, "Thb");
-    Thb.start();
-Thread Thc = new Thread(z, "Thc");
-    Thc.start();
-Thread Thd = new Thread(z, "Thd");
-    Thd.setPriority(7);
-    Thd.start();
-    z.list();
-ThreadGroup f = new ThreadGroup("GF");
-Thread Th1gf = new Thread(f, "Th1");
-    Th1gf.setPriority(5);
-    Th1gf.start();
-Thread Th2gf = new Thread(f, "Th2");
-    Th2gf.start();
-Thread Th3 = new Thread(f, "Th3");
-    Th3.setPriority(9);
-    Th3.start();
-    f.list();
-}}
+    public static void main(String[] args) {
+        ThreadGroup systemGroup = Thread.currentThread().getThreadGroup();
+        systemGroup.list();
+        
+        Thread currentThread = Thread.currentThread();
+        int newPriority = currentThread.getPriority() - 2;
+        currentThread.setPriority(newPriority);
+		Thread T1 = new Thread("Th1");
+		T1.start();
+        systemGroup.list();
+        
+        ThreadGroup groupGV = new ThreadGroup("GV");
+        Thread ThA = new Thread(groupGV, "ThA");
+        ThA.start();
+        groupGV.list();
+        
+        ThreadGroup groupGO = new ThreadGroup("GO");
+        ThreadGroup groupGZ = new ThreadGroup(groupGO, "GZ");
+        
+        Thread Tha = new Thread(groupGZ, "Tha");
+        Tha.setPriority(1);
+        Tha.start();
+        Thread Thb = new Thread(groupGZ, "Thb");
+        Thb.start();
+        Thread Thc = new Thread(groupGZ, "Thc");
+        Thc.start();
+        Thread Thd = new Thread(groupGZ, "Thd");
+        Thd.setPriority(7);
+        Thd.start();
+        groupGZ.list();
+        
+        ThreadGroup groupGF = new ThreadGroup("GF");
+        Thread Th1gf = new Thread(groupGF, "Th1");
+        Th1gf.setPriority(5);
+        Th1gf.start();
+        Thread Th2gf = new Thread(groupGF, "Th2");
+        Th2gf.start();
+        Thread Th3 = new Thread(groupGF, "Th3");
+        Th3.setPriority(9);
+        Th3.start();
+        groupGF.list();
+    }
+}
