@@ -15,7 +15,6 @@ public class lab1 {
         th1.start();
         th2.start();
 
-        // așteptăm să termine ambele fire
         th1.join();
         th2.join();
 
