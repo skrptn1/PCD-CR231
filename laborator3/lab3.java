@@ -1,23 +1,60 @@
+import javax.swing.*;
+import java.awt.*;
+
 public class lab3 {
     public static void main(String[] args) {
+        new InterfataLab3();
+    }
+}
 
-        Th1 fir1 = new Th1();
-        Th2 fir2 = new Th2();
+class InterfataLab3 extends JFrame {
+    private JTextArea textArea; 
+
+    public InterfataLab3() {
+        setTitle("Laborator 3 - Fire de execuție");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+    
+
+        textArea = new JTextArea();
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Consolas", Font.PLAIN, 14));
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        add(scrollPane, BorderLayout.CENTER);
+
+        JLabel status = new JLabel("Execuția rulează...", JLabel.CENTER);
+        add(status, BorderLayout.SOUTH);
+
+        setVisible(true);
+
+
+        Th1 fir1 = new Th1(textArea);
+        Th2 fir2 = new Th2(textArea);
 
         fir1.start();
         fir2.start();
 
-        try {
-            fir1.join();
-            fir2.join();
-            
-        } catch (InterruptedException e) {
-            System.out.println("Firul a fost intrerupt!");
-        }
+        new Thread(() -> {
+            try {
+                fir1.join();
+                fir2.join();
+                SwingUtilities.invokeLater(() -> status.setText("Execuția s-a încheiat."));
+            } catch (InterruptedException e) {
+                SwingUtilities.invokeLater(() -> status.setText("Execuția a fost întreruptă!"));
+            }
+        }).start();
     }
 }
 
 class Th1 extends Thread {
+    private JTextArea output;
+
+    public Th1(JTextArea area) {
+        this.output = area;
+    }
+
     public void run() {
         int primulPar = 0;
         boolean primulGasit = false;
@@ -29,30 +66,40 @@ class Th1 extends Thread {
                     primulGasit = true;
                 } else {
                     int produs = primulPar * i;
-                    System.out.println("Th1: " + primulPar + " * " + i + " = " + produs);
+                    appendText("Th1: " + primulPar + " * " + i + " = " + produs + "\n");
                     primulGasit = false;
 
                     Thread.yield();
-
-                    try { Thread.sleep(150); } 
-                    catch (InterruptedException e) { }
+                    try { Thread.sleep(150); } catch (InterruptedException e) { }
                 }
             }
         }
-       synchronized(System.out) {
-        String name = "Rodion, Mirela";
-        for (int i = 0; i < name.length(); i++) {
-        System.out.print(name.charAt(i));
-        try { Thread.sleep(100); } catch (InterruptedException e) {}
-    }
-    System.out.println();
-}
+
+        synchronized(System.out) {
+             appendText("\nFir1: ");
+            String name = "Rodion, Mirela";
+            for (int i = 0; i < name.length(); i++) {
+                appendText(String.valueOf(name.charAt(i)));
+                try { Thread.sleep(100); } catch (InterruptedException e) { }
+            }
+            
+        }
 
         Thread.currentThread().interrupt();
+    }
+
+    private void appendText(String text) {
+        SwingUtilities.invokeLater(() -> output.append(text));
     }
 }
 
 class Th2 extends Thread {
+    private JTextArea output;
+
+    public Th2(JTextArea area) {
+        this.output = area;
+    }
+
     public void run() {
         int primulPar = 0;
         boolean primulGasit = false;
@@ -64,30 +111,32 @@ class Th2 extends Thread {
                     primulGasit = true;
                 } else {
                     int produs = primulPar * i;
-                    System.out.println("Th2: " + primulPar + " * " + i + " = " + produs);
+                    appendText("Th2: " + primulPar + " * " + i + " = " + produs + "\n");
                     primulGasit = false;
 
                     Thread.yield();
-
-                    try { Thread.sleep(150); } 
-                    catch (InterruptedException e) { }
+                    try { Thread.sleep(150); } catch (InterruptedException e) { }
                 }
             }
 
             if (Thread.interrupted()) {
-                System.out.println("Th2 a fost întrerupt de Th1!");
+                appendText("Th2 a fost întrerupt de Th1!\n");
                 break;
             }
         }
 
         synchronized(System.out) {
-        String name = "Furtuna, Maletchi";
-        for (int i = 0; i < name.length(); i++) {
-        System.out.print(name.charAt(i));
-        try { Thread.sleep(100); } catch (InterruptedException e) {}
-     }
-        System.out.println();
+            appendText("\nFir2: ");
+            String name = "Furtuna, Maletchi";
+            for (int i = 0; i < name.length(); i++) {
+                appendText(String.valueOf(name.charAt(i)));
+                try { Thread.sleep(100); } catch (InterruptedException e) { }
+            }
+            appendText("\n");
+        }
     }
 
+    private void appendText(String text) {
+        SwingUtilities.invokeLater(() -> output.append(text));
     }
 }
