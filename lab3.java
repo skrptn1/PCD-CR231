@@ -119,13 +119,17 @@ class ThreadS2 extends Thread {
     public void run() {
         int cnt = 0;
         int sum = 0;
+        int firstIdx = -1;
 
         for(int i = a.length-1; i>=0; i--){
             if(a[i] % 2 == 0){
                 cnt++;
-                sum += i;
-                if(cnt == 2){
-                    String out = "\n"+currentThread().getName()+" - suma:"+sum+" \n";
+                if(cnt == 1){
+                    firstIdx = i;
+                    sum = i;
+                } else if(cnt == 2){
+                    sum += i;
+                    String out = "\n"+currentThread().getName()+" - suma:"+sum+" ("+firstIdx+"+"+i+")\n";
                     System.out.print(out);
                     String s = out;
                     SwingUtilities.invokeLater(() -> textArea.append(s));
@@ -136,7 +140,7 @@ class ThreadS2 extends Thread {
             }
         }
 
-        try{ Thread.sleep(3500); }catch(Exception e){}
+        try{ Thread.sleep(6000); }catch(Exception e){}
 
         String prefix = "\n"+currentThread().getName()+" - ";
         System.out.print(prefix);
