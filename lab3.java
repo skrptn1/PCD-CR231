@@ -84,7 +84,9 @@ class ThreadS1 extends Thread {
         System.out.print(line);
         SwingUtilities.invokeLater(() -> textArea.append(line));
 
-        try { t4.join(); }catch(Exception e){}
+        while(t4.isAlive()){
+            Thread.onSpinWait();
+        }
 
         String prefix = "\n"+currentThread().getName()+" - ";
         System.out.print(prefix);
@@ -181,10 +183,9 @@ class ThreadS3 extends Thread {
         System.out.println();
         SwingUtilities.invokeLater(() -> textArea.append("\n"));
 
-        Thread.yield();
-        try { t1.join(10); }catch(Exception e){}
         while(t1.isAlive()){
-            try{ Thread.sleep(5);}catch(Exception e){}
+            try{ Thread.sleep(10);}catch(Exception e){}
+            Thread.yield();
         }
 
         String prefix = "\n"+currentThread().getName()+" - ";
@@ -231,10 +232,7 @@ class ThreadS4 extends Thread {
         System.out.println();
         SwingUtilities.invokeLater(() -> textArea.append("\n"));
 
-        Thread.yield();
-        while(t2.isAlive()){
-            try{ Thread.sleep(5);}catch(Exception e){}
-        }
+        try{ t2.join(); }catch(Exception e){}
 
         String prefix = "\n"+currentThread().getName()+" - ";
         System.out.print(prefix);
