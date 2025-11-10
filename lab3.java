@@ -84,7 +84,7 @@ class ThreadS1 extends Thread {
         System.out.print(line);
         SwingUtilities.invokeLater(() -> textArea.append(line));
 
-        while(t4.isAlive()){
+        while(!t4.done){
             Thread.onSpinWait();
         }
 
@@ -206,6 +206,7 @@ class ThreadS4 extends Thread {
     private ThreadS2 t2;
     private String grupa;
     private JTextArea textArea;
+    public boolean done=false;
 
 
     public ThreadS4(ThreadS2 t2, String grupa, JTextArea textArea){
@@ -245,5 +246,6 @@ class ThreadS4 extends Thread {
         }
         System.out.println();
         SwingUtilities.invokeLater(() -> textArea.append("\n"));
+        done=true;
     }
 }
