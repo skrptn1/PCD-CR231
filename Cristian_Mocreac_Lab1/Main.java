@@ -12,18 +12,16 @@ public class Main {
         System.out.println();
         System.out.println("---------------");
 
-        t1 = new TaskStartForward(mas);
-        t3 = new TaskStartForward(mas);
-
-
-        t2 = new TaskStartBackward(mas);
-        t4 = new TaskStartBackward(mas);
+        t1 = new TaskStartForward(mas);  
+        t3 = new TaskStartForward(mas);  
+        t2 = new TaskStartBackward(mas); 
+        t4 = new TaskStartBackward(mas); 
 
         nameThread = new NameThread("Mocreac Cristian, Untila Maxim - Grupul 5");
 
         t1.setName("Maxim-Unu");      t1.start();
-        t2.setName("Maxim-Doi");      t2.start();
-        t3.setName("Cristi-Trei");    t3.start();
+        t3.setName("Maxim-Doi");      t3.start();
+        t2.setName("Cristi-Trei");    t2.start();
         t4.setName("Cristi-Patru");   t4.start();
 
         try {
