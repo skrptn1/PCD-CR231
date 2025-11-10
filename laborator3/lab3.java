@@ -36,7 +36,6 @@ class InterfataLab3 extends JFrame {
             t1.join();
             t2.join();
 
-
             t3.start();
             t3.join(); 
             t4.start();
@@ -69,7 +68,8 @@ class Thread1 extends Thread {
     public void run() {
         int primulPar = 0;
         boolean gasit = false;
-
+        int suma = 0;
+        int count = 0;
         for (int i = 1; i <= 100; i++) {
             if (i % 2 == 0) {
                 if (!gasit) {
@@ -78,6 +78,14 @@ class Thread1 extends Thread {
                 } else {
                     int produs = primulPar * i;
                     append("Th1: " + primulPar + " * " + i + " = " + produs + "\n");
+                    suma = suma + produs;
+                    count++;
+                    if (count==2){
+                    append( currentThread().getName()+" suma=  " +suma);
+                    System.out.println();
+                    suma= 0;
+                    count = 0;
+                    }
                         if (this.isAlive()) {
                         append("Th1 activ\n");
                     }
@@ -115,7 +123,8 @@ class Thread2 extends Thread {
     public void run() {
         int primulPar = 0;
         boolean gasit = false;
-
+        int suma=0;
+        int count = 0;
         for (int i = 100; i >= 1; i--) {
             if (i % 2 == 0) {
                 if (!gasit) {
@@ -123,7 +132,15 @@ class Thread2 extends Thread {
                     gasit = true;
                 } else {
                     int produs = primulPar * i;
-                    append("Th2: " + primulPar + " * " + i + " = " + produs + "\n");
+                    append( currentThread().getName() + primulPar + " * " + i + " = " + produs + "\n");
+                    suma = suma + produs;
+                    count++;
+                    if (count==2){
+                    append( currentThread().getName()+" suma=  " +suma);
+                    System.out.println();
+                    suma= 0;
+                    count = 0;
+                    }
                     gasit = false;
                     Thread.yield();
                     try { Thread.sleep(100); } catch (InterruptedException ignored) {}
