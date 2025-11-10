@@ -8,11 +8,11 @@ public class lab3 {
 }
 
 class InterfataLab3 extends JFrame {
-    private JTextArea textArea; 
+    private JTextArea textArea;
 
     public InterfataLab3() {
         setTitle("Laborator 3 - Fire de executie");
-        setSize(600, 500);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -27,11 +27,13 @@ class InterfataLab3 extends JFrame {
 
         setVisible(true);
 
+        // Creare fire
         Th1 fir1 = new Th1(textArea);
         Th2 fir2 = new Th2(textArea);
-        Th3 fir3 = new Th3(textArea);
-        Th4 fir4 = new Th4(textArea);
+        Th3 t3 = new Th3(textArea);
+        Th4 t4 = new Th4(textArea);
 
+        // Pornire fire
         fir1.start();
         fir2.start();
 
@@ -40,13 +42,20 @@ class InterfataLab3 extends JFrame {
                 fir1.join();
                 fir2.join();
 
-                fir3.start();
-                fir3.join();
+                t3.start();
+                t3.join();
 
-                fir4.start();
-                fir4.join();
+                t4.start();
+                t4.join();
 
-                SwingUtilities.invokeLater(() -> status.setText("Executia s-a incheiat."));
+                // Afișare informații finale după toate firele
+                SwingUtilities.invokeLater(() -> {
+                    textArea.append("\n=== Informații finale ===\n");
+                    textArea.append("Th3 → Disciplina: Programarea Concurentă și Distribuită\n");
+                    textArea.append("Th4 → Grupa: CR-231\n");
+                    textArea.append("===================================\n");
+                    status.setText("Executia s-a incheiat.");
+                });
             } catch (InterruptedException e) {
                 SwingUtilities.invokeLater(() -> status.setText("Executia a fost intrerupta!"));
             }
@@ -87,9 +96,8 @@ class Th1 extends Thread {
                 appendText(String.valueOf(name.charAt(i)));
                 try { Thread.sleep(100); } catch (InterruptedException e) { }
             }
+            appendText("\n");
         }
-
-        Thread.currentThread().interrupt();
     }
 
     private void appendText(String text) {
@@ -121,11 +129,6 @@ class Th2 extends Thread {
                     try { Thread.sleep(150); } catch (InterruptedException e) { }
                 }
             }
-
-            if (Thread.interrupted()) {
-                appendText("Th2 a fost intrerupt de Th1!\n");
-                break;
-            }
         }
 
         synchronized(System.out) {
@@ -152,29 +155,20 @@ class Th3 extends Thread {
     }
 
     public void run() {
-        appendText("\n=== Pornire Th3: Interval [234, 1000] ===\n");
-        int suma = 0;
-        int contor = 0;
-        int a = 0, b = 0;
-        for (int i = 234; i <= 1000; i++) {
-            if (i % 2 == 0) {
-                contor++;
-                if (contor == 1) a = i;
-                if (contor == 2) {
-                    b = i;
-                    int produs = a * b;
-                    suma += produs;
-                    appendText("Th3: " + a + " * " + b + " = " + produs + "\n");
-                    contor = 0;
-                    try { Thread.sleep(100); } catch (InterruptedException e) { }
-                }
-            }
-        }
-        appendText("Th3 a terminat intervalul [234, 1000].\nSuma totala: " + suma + "\n\n");
-    }
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n=== Pornire Th3 ===\n");
+        sb.append("De parcurs intervalul [234, 1000]:\n");
 
-    private void appendText(String text) {
-        SwingUtilities.invokeLater(() -> output.append(text));
+        int count = 0;
+        for (int i = 234; i <= 1000; i++) {
+            sb.append(i).append(" ");
+            count++;
+            if (count % 10 == 0) sb.append("\n"); // 10 numere pe rând
+        }
+
+        sb.append("\nTh3 a terminat parcurgerea intervalului [234, 1000].\n");
+
+        SwingUtilities.invokeLater(() -> output.append(sb.toString()));
     }
 }
 
@@ -186,28 +180,19 @@ class Th4 extends Thread {
     }
 
     public void run() {
-        appendText("=== Pornire Th4: Interval [456, 1234] ===\n");
-        int suma = 0;
-        int contor = 0;
-        int a = 0, b = 0;
-        for (int i = 1234; i >= 456; i--) {
-            if (i % 2 == 0) {
-                contor++;
-                if (contor == 1) a = i;
-                if (contor == 2) {
-                    b = i;
-                    int produs = a * b;
-                    suma += produs;
-                    appendText("Th4: " + a + " * " + b + " = " + produs + "\n");
-                    contor = 0;
-                    try { Thread.sleep(100); } catch (InterruptedException e) { }
-                }
-            }
-        }
-        appendText("Th4 a terminat intervalul [456, 1234].\nSuma totala: " + suma + "\n\n");
-    }
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n=== Pornire Th4 ===\n");
+        sb.append("De parcurs intervalul [456, 1234]:\n");
 
-    private void appendText(String text) {
-        SwingUtilities.invokeLater(() -> output.append(text));
+        int count = 0;
+        for (int i = 1234; i >= 456; i--) {
+            sb.append(i).append(" ");
+            count++;
+            if (count % 10 == 0) sb.append("\n"); // 10 numere pe rând
+        }
+
+        sb.append("\nTh4 a terminat parcurgerea intervalului [456, 1234].\n");
+
+        SwingUtilities.invokeLater(() -> output.append(sb.toString()));
     }
 }
