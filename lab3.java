@@ -125,7 +125,7 @@ class ThreadS2 extends Thread {
                 cnt++;
                 sum += i;
                 if(cnt == 2){
-                    String out = "\n"+currentThread().getName()+" - suma:"+sum+" ";
+                    String out = "\n"+currentThread().getName()+" - suma:"+sum+" \n";
                     System.out.print(out);
                     String s = out;
                     SwingUtilities.invokeLater(() -> textArea.append(s));
@@ -217,12 +217,12 @@ class ThreadS4 extends Thread {
     @Override
     public void run() {
         for(int i=700; i>=300; i--){
-            if(i % 20 == 0){
-                String hdr = "\n"+currentThread().getName()+" - ";
-                System.out.print(hdr);
-                String h = hdr;
-                SwingUtilities.invokeLater(() -> textArea.append(h));
-            }
+
+            String hdr = " "+currentThread().getName()+" - ";
+            System.out.print(hdr);
+            String h = hdr;
+            SwingUtilities.invokeLater(() -> textArea.append(h));
+
             String tok = i+" ";
             System.out.print(tok);
             String t = tok;
