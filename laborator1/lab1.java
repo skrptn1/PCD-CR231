@@ -1,3 +1,4 @@
+package laborator1;
 import java.util.*;
 
 class Worker extends Thread {

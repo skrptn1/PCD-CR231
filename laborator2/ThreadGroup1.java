@@ -1,3 +1,4 @@
+package laborator2;
 public class ThreadGroup1 {
     public static void main(String[] args) {
         ThreadGroup systemGroup = Thread.currentThread().getThreadGroup();
