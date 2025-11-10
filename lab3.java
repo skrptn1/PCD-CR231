@@ -184,7 +184,6 @@ class ThreadS3 extends Thread {
         SwingUtilities.invokeLater(() -> textArea.append("\n"));
 
         while(t1.isAlive()){
-            try{ Thread.sleep(10);}catch(Exception e){}
             Thread.yield();
         }
 
