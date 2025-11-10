@@ -28,7 +28,8 @@ class InterfataLab3 extends JFrame {
         Thread4 t4 = new Thread4("CR-231", textArea);
         Thread1 t1 = new Thread1("Radu, Mirela", textArea);
         Thread3 t3 = new Thread3("Programarea Concurenta si Distribuita", textArea);
-
+        t3.setName("T3");
+        t4.setName("T4");
         try {
 
             t1.start();
@@ -37,8 +38,8 @@ class InterfataLab3 extends JFrame {
             t2.join();
 
 
-            t3.start();
-            t3.join(); 
+           t3.start();
+            t4.join(); 
             t4.start();
             t4.join();
 
@@ -79,7 +80,6 @@ class Thread1 extends Thread {
                     int produs = primulPar * i;
                     append("Th1: " + primulPar + " * " + i + " = " + produs + "\n");
                         if (this.isAlive()) {
-                        append("Th1 activ\n");
                     }
                     gasit = false;
                     Thread.yield();
@@ -159,8 +159,8 @@ class Thread3 extends Thread {
     public void run() {
         append("\n Pornire Th3\n");
         for (int i = 234; i <= 1000; i++) {
-            append(i + " ");
-            if (i % 20 == 0) append("\n");
+            
+            append(currentThread().getName() +" "+i + " ");
             try { Thread.sleep(2); } catch (InterruptedException ignored) {}
         }
 
@@ -192,7 +192,7 @@ class Thread4 extends Thread {
     public void run() {
         append("\n Pornire Th4 \n");
         for (int i = 1234; i >= 456; i--) {
-            append(i + " ");
+            append(currentThread().getName() +" "+i + " ");
             if (i % 20 == 0) append("\n");
             try { Thread.sleep(2); } catch (InterruptedException ignored) {}
         }
