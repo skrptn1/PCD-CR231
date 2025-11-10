@@ -5,6 +5,7 @@ class Th2 extends Thread {
     String name = "Th2";
     int[] a = null;
     App app;
+    boolean done = false;
 
     public Th2(String name, int[] a, App app) {
         this.a = a;
@@ -29,6 +30,8 @@ class Th2 extends Thread {
                 }
             }
         }
+        done = true;
+
         String text = "Pavalache";
         for (char c : text.toCharArray()) {
             app.appendText(c + "");

@@ -55,8 +55,8 @@ public class App extends Application {
         Th4 th4 = null;
         th2 = new Th2("Th2", tablou, this);
         th4 = new Th4(th2, this);
-        th1 = new Th1("Th1", tablou, this, th2, th4);
-        th3 = new Th3(th4, th1, th2, this);
+        th1 = new Th1("Th1", tablou, this, th4);
+        th3 = new Th3(th4, th1, this);
 
         new Thread(th1).start();
         new Thread(th2).start();

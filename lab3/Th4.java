@@ -12,25 +12,22 @@ public class Th4 extends Thread {
 
     @Override
     public void run() {
-        while (th2.isAlive()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
 
         app.appendText("Pornire Th4 (interval descrescător 1567–1000):\n");
         for (int i = 1567; i >= 1000; i--) {
             app.appendText("Th4: " + i + "\n");
+        }
+        app.appendText("\nTh4 a terminat intervalul.\n");
+
+        while (th2.isAlive()) {
+            System.out.println("waiting");
+            app.appendText("waiting");
             try {
-                Thread.sleep(5);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        app.appendText("\nTh4 a terminat intervalul.\n");
-
         String grupa = "Grupa: CR-231";
         for (char c : grupa.toCharArray()) {
             app.appendText(c + "");
