@@ -1,37 +1,30 @@
 package laborator1;
 import java.util.*;
 
-class Worker extends Thread {
+class MihalachiThread extends Thread {
     private int from, to, step;
     private int[] mas;
 
-    public Worker(int from, int to, int step, int[] mas) {
+    public MihalachiThread(int from, int to, int step, int[] mas) {
         this.from = from;
         this.to = to;
         this.step = step;
         this.mas = mas;
     }
 
+    @Override
     public void run() {
+        System.out.println(getName() + " (Mihalachi) a inceput executia...");
         int i = from;
-        System.out.println(getName() + " a inceput executia...");
-
-        int s1 = -1, s2 = -1, suma = 0;
-
         while (i != to) {
-            // Cautam prima pozitie cu numar impar
             if (mas[i] % 2 != 0) {
-                s1 = i;
+                int s1 = i;
                 i += step;
-
-                // Cautam urmatoarea pozitie cu numar impar
                 while (i >= 0 && i < mas.length) {
                     if (mas[i] % 2 != 0) {
-                        s2 = i;
-                        suma = s1 + s2;
-                        System.out.println(getName() + " -> pozitiile " + s1 + " si " + s2 +
-                                " | suma=" + suma +
-                                " | valori=" + mas[s1] + ", " + mas[s2]);
+                        int s2 = i;
+                        int suma = s1 + s2;
+                        System.out.println(getName() + " (Mihalachi) -> pozitii: " + s1 + " si " + s2 + " | suma=" + suma);
                         break;
                     }
                     i += step;
@@ -39,8 +32,42 @@ class Worker extends Thread {
             }
             i += step;
         }
+        System.out.println(getName() + " (Mihalachi) s-a terminat.\n");
+    }
+}
 
-        System.out.println(getName() + " s-a terminat.\n");
+class MalaiThread extends Thread {
+    private int from, to, step;
+    private int[] mas;
+
+    public MalaiThread(int from, int to, int step, int[] mas) {
+        this.from = from;
+        this.to = to;
+        this.step = step;
+        this.mas = mas;
+    }
+
+    @Override
+    public void run() {
+        System.out.println(getName() + " (Malai) a inceput executia...");
+        int i = from;
+        while (i != to) {
+            if (mas[i] % 2 != 0) {
+                int s1 = i;
+                i += step;
+                while (i >= 0 && i < mas.length) {
+                    if (mas[i] % 2 != 0) {
+                        int s2 = i;
+                        int suma = s1 + s2;
+                        System.out.println(getName() + " (Malai) -> pozitii: " + s1 + " si " + s2 + " | suma=" + suma);
+                        break;
+                    }
+                    i += step;
+                }
+            }
+            i += step;
+        }
+        System.out.println(getName() + " (Malai) s-a terminat.\n");
     }
 }
 
@@ -49,32 +76,36 @@ public class lab1 {
         int[] mas = new int[100];
         Random r = new Random();
 
-        // Generare tabloul cu valori intre 1 si 100
         for (int i = 0; i < mas.length; i++) {
             mas[i] = r.nextInt(100) + 1;
             System.out.print(mas[i] + " ");
         }
         System.out.println("\n------------------------------------------");
 
-        // Fir 1: de la inceput spre sfarsit
-        Worker th1 = new Worker(0, 99, 1, mas);
-        th1.setName("Th1 (de la inceput)");
+        MihalachiThread th1A = new MihalachiThread(0, 99, 1, mas);
+        MihalachiThread th2A = new MihalachiThread(99, 0, -1, mas);
+        th1A.setName("Th1A");
+        th2A.setName("Th2A");
 
-        // Fir 2: de la sfarsit spre inceput
-        Worker th2 = new Worker(99, 0, -1, mas);
-        th2.setName("Th2 (de la sfarsit)");
+        MalaiThread th1B = new MalaiThread(0, 99, 1, mas);
+        MalaiThread th2B = new MalaiThread(99, 0, -1, mas);
+        th1B.setName("Th1B");
+        th2B.setName("Th2B");
 
-        th1.start();
-        th2.start();
+        th1A.start();
+        th2A.start();
+        th1B.start();
+        th2B.start();
 
         try {
-            th1.join();
-            th2.join();
+            th1A.join();
+            th2A.join();
+            th1B.join();
+            th2B.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        // Afișare informatii studenti literă cu literă
         String text = "Lucrarea a fost realizata de studentii: Mihalachi si Malai.";
 
         System.out.println("\n--- Informatii studenti ---");
