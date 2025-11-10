@@ -11,8 +11,8 @@ class InterfataLab3 extends JFrame {
     private JTextArea textArea;
 
     public InterfataLab3() {
-        setTitle("Laborator 3");
-        setSize(600, 400);
+        setTitle("Laborator 3 ");
+        setSize(900, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -22,119 +22,192 @@ class InterfataLab3 extends JFrame {
         JScrollPane scrollPane = new JScrollPane(textArea);
         add(scrollPane, BorderLayout.CENTER);
 
-        JLabel status = new JLabel("Execuția rulează...", JLabel.CENTER);
-        add(status, BorderLayout.SOUTH);
-
         setVisible(true);
 
-        Th1 fir1 = new Th1(textArea);
-        Th2 fir2 = new Th2(textArea);
+        Thread2 t2 = new Thread2("Furtuna, Maletchi", textArea);
+        Thread4 t4 = new Thread4("CR-231", textArea);
+        Thread1 t1 = new Thread1("Radu, Mirela", textArea);
+        Thread3 t3 = new Thread3("Programarea Concurenta si Distribuita", textArea);
 
-        fir1.start();
-        fir2.start();
+        try {
 
-        new Thread(() -> {
-            try {
-                fir1.join();
-                fir2.join();
-                SwingUtilities.invokeLater(() -> status.setText("Execuția s-a încheiat."));
-            } catch (InterruptedException e) {
-                SwingUtilities.invokeLater(() -> status.setText("Execuția a fost întreruptă!"));
-            }
-        }).start();
+            t1.start();
+            t2.start();
+            t1.join();
+            t2.join();
+
+
+            t3.start();
+            t3.join(); 
+            t4.start();
+            t4.join();
+
+            t2.afisareDate();
+            t4.afisareDate();
+            t1.afisareDate();
+            t3.afisareDate();
+
+        } catch (InterruptedException e) {
+            append("\nExecutia a fost intrerupta!\n");
+        }
+    }
+
+    private void append(String text) {
+        SwingUtilities.invokeLater(() -> textArea.append(text));
     }
 }
 
+class Thread1 extends Thread {
+    private final JTextArea output;
+    private final String nume;
 
-class Th1 extends Thread {
-    private JTextArea output;
-
-    public Th1(JTextArea area) {
+    public Thread1(String nume, JTextArea area) {
         this.output = area;
+        this.nume = nume;
     }
 
     public void run() {
         int primulPar = 0;
-        boolean primulGasit = false;
+        boolean gasit = false;
 
         for (int i = 1; i <= 100; i++) {
             if (i % 2 == 0) {
-                if (!primulGasit) {
+                if (!gasit) {
                     primulPar = i;
-                    primulGasit = true;
+                    gasit = true;
                 } else {
                     int produs = primulPar * i;
-                    appendText("Th1: " + primulPar + " * " + i + " = " + produs + "\n");
-                    primulGasit = false;
-
+                    append("Th1: " + primulPar + " * " + i + " = " + produs + "\n");
+                        if (this.isAlive()) {
+                        append("Th1 activ\n");
+                    }
+                    gasit = false;
                     Thread.yield();
-                    try { Thread.sleep(150); } catch (InterruptedException e) { }
+                    try { Thread.sleep(100); } catch (InterruptedException ignored) {}
                 }
             }
         }
-
-        synchronized(System.out) {
-            appendText("\nFir1: ");
-            String name = "Rodion, Mirela";
-            for (int i = 0; i < name.length(); i++) {
-                appendText(String.valueOf(name.charAt(i)));
-                try { Thread.sleep(100); } catch (InterruptedException e) { }
-            }
-            appendText("\n");
-        }
-
-        Thread.currentThread().interrupt();
     }
 
-    private void appendText(String text) {
+    public void afisareDate() {
+        append("\nTh1:");
+        for (char c : nume.toCharArray()) {
+            append(String.valueOf(c));
+            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+        }
+    
+    }
+
+    private void append(String text) {
         SwingUtilities.invokeLater(() -> output.append(text));
     }
 }
 
-class Th2 extends Thread {
-    private JTextArea output;
+class Thread2 extends Thread {
+    private final JTextArea output;
+    private final String nume;
 
-    public Th2(JTextArea area) {
+    public Thread2(String nume, JTextArea area) {
         this.output = area;
+        this.nume = nume;
     }
 
     public void run() {
         int primulPar = 0;
-        boolean primulGasit = false;
+        boolean gasit = false;
 
         for (int i = 100; i >= 1; i--) {
             if (i % 2 == 0) {
-                if (!primulGasit) {
+                if (!gasit) {
                     primulPar = i;
-                    primulGasit = true;
+                    gasit = true;
                 } else {
                     int produs = primulPar * i;
-                    appendText("Th2: " + primulPar + " * " + i + " = " + produs + "\n");
-                    primulGasit = false;
-
+                    append("Th2: " + primulPar + " * " + i + " = " + produs + "\n");
+                    gasit = false;
                     Thread.yield();
-                    try { Thread.sleep(150); } catch (InterruptedException e) { }
+                    try { Thread.sleep(100); } catch (InterruptedException ignored) {}
                 }
             }
-
-            if (Thread.interrupted()) {
-                appendText("Th2 a fost întrerupt de Th1!\n");
-                break;
-            }
-        }
-
-        synchronized(System.out) {
-             appendText("\nFir2: ");
-            String name = "Furtuna, Maletchi";
-            for (int i = 0; i < name.length(); i++) {
-                appendText(String.valueOf(name.charAt(i)));
-                try { Thread.sleep(100); } catch (InterruptedException e) { }
-            }
-            appendText("\n");
         }
     }
 
-    private void appendText(String text) {
+    public void afisareDate() {
+        append("\nTh2: ");
+        for (char c : nume.toCharArray()) {
+            append(String.valueOf(c));
+            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+        }
+
+    }
+
+    private void append(String text) {
+        SwingUtilities.invokeLater(() -> output.append(text));
+    }
+}
+
+
+class Thread3 extends Thread {
+    private final JTextArea output;
+    private final String disciplina;
+
+    public Thread3(String disciplina, JTextArea area) {
+        this.output = area;
+        this.disciplina = disciplina;
+    }
+
+    public void run() {
+        append("\n Pornire Th3\n");
+        for (int i = 234; i <= 1000; i++) {
+            append(i + " ");
+            if (i % 20 == 0) append("\n");
+            try { Thread.sleep(2); } catch (InterruptedException ignored) {}
+        }
+
+    }
+
+    public void afisareDate() {
+        append("\nTh3: ");
+        for (char c : disciplina.toCharArray()) {
+            append(String.valueOf(c));
+            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+        }
+       
+    }
+
+    private void append(String text) {
+        SwingUtilities.invokeLater(() -> output.append(text));
+    }
+}
+
+class Thread4 extends Thread {
+    private final JTextArea output;
+    private final String grupa;
+
+    public Thread4(String grupa, JTextArea area) {
+        this.output = area;
+        this.grupa = grupa;
+    }
+
+    public void run() {
+        append("\n Pornire Th4 \n");
+        for (int i = 1234; i >= 456; i--) {
+            append(i + " ");
+            if (i % 20 == 0) append("\n");
+            try { Thread.sleep(2); } catch (InterruptedException ignored) {}
+        }
+    }
+
+    public void afisareDate() {
+        append("\nTh4: ");
+        for (char c : grupa.toCharArray()) {
+            append(String.valueOf(c));
+            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+        }
+        
+    }
+
+    private void append(String text) {
         SwingUtilities.invokeLater(() -> output.append(text));
     }
 }
