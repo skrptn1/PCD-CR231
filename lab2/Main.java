@@ -1,78 +1,180 @@
-package lab2;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 
-public class Main {
-    private static JTextArea textArea;
+public class Main extends JFrame {
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(Main::createUI);
+    private JTextArea output;
+    private JButton startBtn;
+
+    public Main() {
+        setTitle("Lucrare Laborator Thread-uri");
+        setSize(600, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        output = new JTextArea();
+        output.setEditable(false);
+        output.setFont(new Font("Consolas", Font.PLAIN, 16));
+
+        startBtn = new JButton("Start Fire");
+        startBtn.setFont(new Font("Arial", Font.BOLD, 18));
+
+        JScrollPane scroll = new JScrollPane(output);
+
+        add(scroll, BorderLayout.CENTER);
+        add(startBtn, BorderLayout.SOUTH);
+
+        startBtn.addActionListener(e -> pornesteFire());
     }
 
-    private static void createUI() {
-        JFrame frame = new JFrame("Lab2 - Threads Th1 și Th2");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(700, 500);
-        frame.setLayout(new BorderLayout());
+    private void pornesteFire() {
+        output.setText("");
 
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Consolas", Font.PLAIN, 14));
-        JScrollPane scrollPane = new JScrollPane(textArea);
-
-        frame.add(scrollPane, BorderLayout.CENTER);
-        frame.setVisible(true);
-
-        ruleazaThreaduri();
-    }
-
-    private static void ruleazaThreaduri() {
-        
         int[] mas = new int[100];
-        Random random = new Random();
+        Random r = new Random();
+
         for (int i = 0; i < mas.length; i++) {
-            mas[i] = random.nextInt(100) + 1;
+            mas[i] = r.nextInt(100) + 1;
         }
 
-        
-        for (int num : mas) {
-            textArea.append(num + " ");
-        }
-        textArea.append("\n\n");
+        Th1 t1 = new Th1(mas, output);
+        Th2 t2 = new Th2(mas, output);
+        Th3 t3 = new Th3(mas, output);
+        Th4 t4 = new Th4(mas, output);
 
-        
-        Th1 th1Runnable = new Th1(mas, textArea);
-        Thread th1 = new Thread(th1Runnable);
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
 
-        Th2 th2Thread = new Th2(mas, textArea);
-
-        
-        th1.start();
-        th2Thread.start();
-
-        
         new Thread(() -> {
             try {
-                th1.join();
-                th2Thread.join();
-                afiseazaMesajFinal("Lucrarea a fost efectuată de Pricop Alexandru si Burlea Vlad.");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                t1.join();
+                t2.join();
+                t3.join();
+                t4.join();
+            } catch (InterruptedException ignored) {
             }
+
+            String text = "\nLucrarea a fost executată de Pricop Alexandru și Burlea Vlad";
+
+            for (char c : text.toCharArray()) {
+                SwingUtilities.invokeLater(() -> output.append(String.valueOf(c)));
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                }
+            }
+
         }).start();
     }
 
-    private static void afiseazaMesajFinal(String text) {
-        try {
-            for (char c : text.toCharArray()) {
-                SwingUtilities.invokeLater(() -> textArea.append(String.valueOf(c)));
-                Thread.sleep(100);
-            }
-            SwingUtilities.invokeLater(() -> textArea.append("\n"));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Main().setVisible(true));
     }
 }
+
+class Th1 extends Thread {
+    private int[] mas;
+    private JTextArea out;
+
+    public Th1(int[] mas, JTextArea out) {
+        this.mas = mas;
+        this.out = out;
+    }
+
+    @Override
+    public void run() {
+        int suma = 0;
+
+        for (int i = 0; i < mas.length - 1; i++) {
+            if (mas[i] % 2 != 0 && mas[i + 1] % 2 != 0) {
+                suma += mas[i] * mas[i + 1];
+            }
+        }
+
+        int rezultat = suma;
+        SwingUtilities.invokeLater(() ->
+                out.append("TH1 (Condiția 1) = " + rezultat + "\n")
+        );
+    }
+}
+
+class Th2 extends Thread {
+    private int[] mas;
+    private JTextArea out;
+
+    public Th2(int[] mas, JTextArea out) {
+        this.mas = mas;
+        this.out = out;
+    }
+
+    @Override
+    public void run() {
+        int suma = 0;
+
+        for (int i = mas.length - 1; i > 0; i--) {
+            if (mas[i] % 2 != 0 && mas[i - 1] % 2 != 0) {
+                suma += mas[i] * mas[i - 1];
+            }
+        }
+
+        int rezultat = suma;
+        SwingUtilities.invokeLater(() ->
+                out.append("TH2 (Condiția 2) = " + rezultat + "\n")
+        );
+    }
+}
+
+class Th3 extends Thread {
+    private int[] mas;
+    private JTextArea out;
+
+    public Th3(int[] mas, JTextArea out) {
+        this.mas = mas;
+        this.out = out;
+    }
+
+    @Override
+    public void run() {
+        int suma = 0;
+
+        for (int i = 0; i < mas.length - 1; i++) {
+            if (mas[i] % 2 != 0 && mas[i + 1] % 2 != 0) {
+                suma += mas[i] * mas[i + 1];
+            }
+        }
+
+        int rezultat = suma;
+        SwingUtilities.invokeLater(() ->
+                out.append("TH3 (Condiția 1) = " + rezultat + "\n")
+        );
+    }
+}
+
+class Th4 extends Thread {
+    private int[] mas;
+    private JTextArea out;
+
+    public Th4(int[] mas, JTextArea out) {
+        this.mas = mas;
+        this.out = out;
+    }
+
+    @Override
+    public void run() {
+        int suma = 0;
+
+        for (int i = mas.length - 1; i > 0; i--) {
+            if (mas[i] % 2 != 0 && mas[i - 1] % 2 != 0) {
+                suma += mas[i] * mas[i - 1];
+            }
+        }
+
+        int rezultat = suma;
+        SwingUtilities.invokeLater(() ->
+                out.append("TH4 (Condiția 2) = " + rezultat + "\n")
+        );
+    }
+}
+
