@@ -46,7 +46,7 @@ class MalaiThread extends Thread {
         this.step = step;
         this.mas = mas;
     }
-
+   
     @Override
     public void run() {
         System.out.println(getName() + " (Malai) a inceput executia...");
@@ -91,6 +91,11 @@ public class lab1 {
         MalaiThread th2B = new MalaiThread(99, 0, -1, mas);
         th1B.setName("Th1B");
         th2B.setName("Th2B");
+       th1A.setName("T1");
+       th2A.setName("T2");
+       th1B.setName("T3");
+       th2B.setName("T4");
+       
 
         th1A.start();
         th2A.start();
