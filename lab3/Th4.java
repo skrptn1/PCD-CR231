@@ -2,11 +2,9 @@ package lab3;
 
 public class Th4 extends Thread {
 
-    private Th2 th2;
     App app;
 
-    public Th4(Th2 th2, App app) {
-        this.th2 = th2;
+    public Th4(App app) {
         this.app = app;
     }
 

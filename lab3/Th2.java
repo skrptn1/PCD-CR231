@@ -7,13 +7,10 @@ class Th2 extends Thread {
     App app;
     Th4 th4;
 
-    public Th2(String name, int[] a, App app) {
+    public Th2(String name, int[] a, App app, Th4 th4) {
         this.a = a;
         this.name = name;
         this.app = app;
-    }
-
-    public void setTh4(Th4 th4) {
         this.th4 = th4;
     }
 
