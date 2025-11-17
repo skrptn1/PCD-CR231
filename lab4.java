@@ -1,231 +1,192 @@
-import javax.swing.*;
-import java.awt.*;
-
-/*
- * X = 2 producatori
- * Y = 3 consumatori  
- * Z = 11 obiecte per consumator
- * D = 8 dimensiunea depozitului
- * F = 2 obiecte produse de fiecare data
- * Tip obiecte: Numere pare
- */
 public class lab4 {
-    public static void main(String[] args) {
-        // Parametri
-        final int X = 2;  // numar producatori
-        final int Y = 3;  // numar consumatori
-        final int Z = 11; // obiecte per consumator
-        final int D = 8;  // dimensiunea depozitului
-        final int F = 2;  // obiecte produse per iteratie
-        
-        // Cream interfata grafica
-        InterfataGUI gui = new InterfataGUI();
-        
-        // Cream depozitul
-        Depozit depozit = new Depozit(D, Y, Z, gui);
-        
-        // Cream si pornim thread-urile
-        Producator p1 = new Producator(depozit, 1, F, gui);
-        Producator p2 = new Producator(depozit, 2, F, gui);
-        
-        Consumator c1 = new Consumator(depozit, 1, Z, gui);
-        Consumator c2 = new Consumator(depozit, 2, Z, gui);
-        Consumator c3 = new Consumator(depozit, 3, Z, gui);
-        
-        p1.start();
-        p2.start();
-        c1.start();
-        c2.start();
-        c3.start();
-    }
-}
 
-// Interfata grafica simpla
-class InterfataGUI extends JFrame {
-    private JTextArea outputArea;
-    
-    public InterfataGUI() {
-        setTitle("Producer-Consumer Monitor");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        
-        // Titlu
-        JLabel titlu = new JLabel("Producer-Consumer Simulation", SwingConstants.CENTER);
-        titlu.setFont(new Font("Arial", Font.BOLD, 18));
-        titlu.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        add(titlu, BorderLayout.NORTH);
-        
-        // Area pentru output
-        outputArea = new JTextArea();
-        outputArea.setEditable(false);
-        outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        outputArea.setBackground(Color.BLACK);
-        outputArea.setForeground(Color.GREEN);
-        
-        JScrollPane scrollPane = new JScrollPane(outputArea);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        add(scrollPane, BorderLayout.CENTER);
-        
-        // Info panel
-        JPanel infoPanel = new JPanel(new GridLayout(1, 5, 10, 5));
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
-        infoPanel.add(new JLabel("X=2 Producatori"));
-        infoPanel.add(new JLabel("Y=3 Consumatori"));
-        infoPanel.add(new JLabel("Z=11 obiecte/cons"));
-        infoPanel.add(new JLabel("D=8 dimensiune"));
-        infoPanel.add(new JLabel("F=2 obiecte/prod"));
-        add(infoPanel, BorderLayout.SOUTH);
-        
-        setLocationRelativeTo(null);
-        setVisible(true);
-    }
-    
-    public void afiseaza(String mesaj) {
-        SwingUtilities.invokeLater(() -> {
-            outputArea.append(mesaj + "\n");
-            outputArea.setCaretPosition(outputArea.getDocument().getLength());
-        });
-        System.out.println(mesaj); // si in consola
+    public static final int X = 2; 
+    public static final int Y = 3; 
+    public static final int Z = 11;
+    public static final int D = 8; 
+    public static final int F = 2; 
+
+    public static void main(String[] args) {
+        int totalDeProduse = Y * Z;
+
+        Depozit depozit = new Depozit(D, totalDeProduse);
+
+        Producator[] producatori = new Producator[X];
+        for (int i = 0; i < X; i++) {
+            producatori[i] = new Producator(depozit, i + 1, F);
+        }
+
+        Consumator[] consumatori = new Consumator[Y];
+        for (int i = 0; i < Y; i++) {
+            consumatori[i] = new Consumator(depozit, i + 1, Z);
+        }
+
+        for (Producator p : producatori) {
+            p.start();
+        }
+        for (Consumator c : consumatori) {
+            c.start();
+        }
+
+        try {
+            for (Producator p : producatori) {
+                p.join();
+            }
+            for (Consumator c : consumatori) {
+                c.join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("=== Toate obiectele au fost produse si consumate. Program terminat. ===");
     }
 }
 
 class Depozit {
-    private int[] buffer;
+    private final int[] buffer;
     private int count = 0;
-    private int totalConsumat = 0;
-    private int totalNecesar;
-    private InterfataGUI gui;
-    
-    public Depozit(int dimensiune, int numarConsumatori, int obiectePeConsumator, InterfataGUI gui) {
+
+    private final int totalDeProduse;
+    private int produse = 0;
+    private int consumate = 0;
+    private boolean terminat = false;
+
+    public Depozit(int dimensiune, int totalDeProduse) {
         this.buffer = new int[dimensiune];
-        this.totalNecesar = numarConsumatori * obiectePeConsumator;
-        this.gui = gui;
-        gui.afiseaza("=== DEPOZIT CREAT: Dimensiune=" + dimensiune + ", Total necesar=" + totalNecesar + " ===\n");
+        this.totalDeProduse = totalDeProduse;
     }
-    
-    synchronized void produce(int valoare) {
-        while(count == buffer.length) {
-            gui.afiseaza(">>> DEPOZITUL ESTE PLIN! Asteptare...");
+
+    public synchronized boolean produce(int valoare, int idProducator) {
+        if (produse >= totalDeProduse) {
+            return false;
+        }
+
+        while (count == buffer.length) {
+            System.out.println(">>> Depozitul este PLIN. Producatorul " + idProducator + " asteapta...");
             try {
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                return false;
+            }
+            if (produse >= totalDeProduse) {
+                return false;
             }
         }
-        
+
         buffer[count] = valoare;
         count++;
-        gui.afiseaza("    [Depozit: " + count + "/" + buffer.length + " elemente]");
+        produse++;
+
+        System.out.println("Producatorul " + idProducator + " a produs: " + valoare +
+                           " (in depozit: " + count + ", produse total: " + produse + ")");
+
+        if (produse == totalDeProduse) {
+            terminat = true;
+        }
+
         notifyAll();
+        return true;
     }
-    
-    synchronized int consuma() {
-        while(count == 0) {
-            if(totalConsumat >= totalNecesar) {
-                return -1; // stop signal
-            }
-            gui.afiseaza(">>> DEPOZITUL ESTE GOL! Asteptare...");
+
+    public synchronized Integer consuma(int idConsumator) {
+        while (count == 0 && !terminat) {
+            System.out.println("<<< Depozitul este GOL. Consumatorul " + idConsumator + " asteapta...");
             try {
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                return null;
             }
         }
-        
+
+        if (count == 0 && terminat) {
+            return null;
+        }
+
         count--;
         int valoare = buffer[count];
-        totalConsumat++;
-        gui.afiseaza("    [Depozit: " + count + "/" + buffer.length + " elemente]");
+        consumate++;
+
+        System.out.println("Consumatorul " + idConsumator + " a consumat: " + valoare +
+                           " (in depozit: " + count + ", consumate total: " + consumate + ")");
+
         notifyAll();
         return valoare;
-    }
-    
-    synchronized boolean esteComplet() {
-        return totalConsumat >= totalNecesar;
     }
 }
 
 class Producator extends Thread {
-    private Depozit depozit;
-    private int id;
-    private int obiectePeIteratie;
-    private InterfataGUI gui;
-    
-    public Producator(Depozit depozit, int id, int obiectePeIteratie, InterfataGUI gui) {
-        this.depozit = depozit;
+    private final Depozit depozit;
+    private final int id;
+    private final int batchSize;
+    private final java.util.Random random = new java.util.Random();
+
+    public Producator(Depozit d, int id, int batchSize) {
+        this.depozit = d;
         this.id = id;
-        this.obiectePeIteratie = obiectePeIteratie;
-        this.gui = gui;
+        this.batchSize = batchSize;
+    }
+
+    private int genereazaNumarPar() {
+        int n = 10 + random.nextInt(61) * 2;
+        return n;
     }
 
     @Override
     public void run() {
-        gui.afiseaza("\n[PRODUCATOR " + id + "] Start productie (cate " + obiectePeIteratie + " obiecte/iteratie)");
-        
-        while(!depozit.esteComplet()) {
-            // Produce F obiecte de fiecare data
-            for(int i = 0; i < obiectePeIteratie; i++) {
-                if(depozit.esteComplet()) {
-                    break;
+        while (true) {
+            for (int i = 0; i < batchSize; i++) {
+                int val = genereazaNumarPar();
+                boolean ok = depozit.produce(val, id);
+                if (!ok) {
+                    System.out.println("Producatorul " + id + " se opreste (nu mai sunt necesare obiecte).");
+                    return;
                 }
-                
-                // Genereaza numar par aleatoriu (10-100)
-                int numarPar = ((int)(Math.random() * 46) + 5) * 2;
-                
-                depozit.produce(numarPar);
-                gui.afiseaza("[PRODUCATOR " + id + "] A produs: " + numarPar);
-            }
-            
-            try {
-                sleep((int)(Math.random() * 500) + 200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                try {
+                    Thread.sleep(random.nextInt(400));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
             }
         }
-        
-        gui.afiseaza("[PRODUCATOR " + id + "] *** TERMINAT ***\n");
     }
 }
 
 class Consumator extends Thread {
-    private Depozit depozit;
-    private int id;
-    private int obiectiveNecesare;
-    private InterfataGUI gui;
-    private int consumate = 0;
+    private final Depozit depozit;
+    private final int id;
+    private final int deConsum;
 
-    public Consumator(Depozit depozit, int id, int obiectiveNecesare, InterfataGUI gui) {
-        this.depozit = depozit;
+    public Consumator(Depozit d, int id, int deConsum) {
+        this.depozit = d;
         this.id = id;
-        this.obiectiveNecesare = obiectiveNecesare;
-        this.gui = gui;
+        this.deConsum = deConsum;
     }
 
     @Override
     public void run() {
-        gui.afiseaza("\n[CONSUMATOR " + id + "] Start consum (necesar: " + obiectiveNecesare + " obiecte)");
-        
-        while(consumate < obiectiveNecesare) {
-            int valoare = depozit.consuma();
-            
-            if(valoare == -1) {
-                break; // stop signal
+        int consumateLocal = 0;
+        java.util.Random random = new java.util.Random();
+
+        while (consumateLocal < deConsum) {
+            Integer val = depozit.consuma(id);
+            if (val == null) {
+                break;
             }
-            
-            consumate++;
-            gui.afiseaza("[CONSUMATOR " + id + "] A consumat: " + valoare + " (total: " + 
-                        consumate + "/" + obiectiveNecesare + ")");
-            
-            if(consumate >= obiectiveNecesare) {
-                gui.afiseaza("[CONSUMATOR " + id + "] *** INDESTULAT cu " + consumate + " obiecte ***\n");
-            }
-            
+            consumateLocal++;
+
             try {
-                sleep((int)(Math.random() * 400) + 100);
+                Thread.sleep(random.nextInt(500));
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                break;
             }
         }
+
+        System.out.println("Consumatorul " + id +
+                           " s-a indestulat cu " + consumateLocal + " obiecte si se opreste.");
     }
 }
