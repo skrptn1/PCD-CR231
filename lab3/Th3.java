@@ -19,12 +19,7 @@ public class Th3 extends Thread {
         app.appendText("\nTh3 a terminat intervalul.\n");
 
         while (th1.isAlive()) {
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            Thread.yield();
         }
 
         String disciplina = "Programarea Concurentă și Distribuită";

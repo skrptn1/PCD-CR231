@@ -33,13 +33,11 @@ class Th1 extends Thread {
         }
         app.appendText(name + " waiting for other threads...\n");
 
-        while (th4.isAlive()) {
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        try {
+            th4.join();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
         String text = "Victor";

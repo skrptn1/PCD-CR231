@@ -5,11 +5,16 @@ class Th2 extends Thread {
     String name = "Th2";
     int[] a = null;
     App app;
+    Th4 th4;
 
     public Th2(String name, int[] a, App app) {
         this.a = a;
         this.name = name;
         this.app = app;
+    }
+
+    public void setTh4(Th4 th4) {
+        this.th4 = th4;
     }
 
     public void run() {
@@ -30,6 +35,13 @@ class Th2 extends Thread {
             }
         }
 
+        try {
+            // for the first letter to appear when needed
+            sleep(100);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
         String text = "Pavalache";
         for (char c : text.toCharArray()) {
             app.appendText(c + "");
@@ -40,5 +52,6 @@ class Th2 extends Thread {
             }
         }
         app.appendText("\n");
+        th4.interrupt();
     }
 }

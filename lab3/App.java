@@ -49,6 +49,7 @@ public class App extends Application {
         Th3 th3 = null;
         th2 = new Th2("Th2", tablou, this);
         th4 = new Th4(th2, this);
+        th2.setTh4(th4);
         th1 = new Th1("Th1", tablou, this, th4);
         th3 = new Th3(th4, th1, this);
         th2.start();
