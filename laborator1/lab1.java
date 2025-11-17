@@ -78,6 +78,9 @@ public class lab1 {
 
         for (int i = 0; i < mas.length; i++) {
             mas[i] = r.nextInt(100) + 1;
+            if (i == 50){
+                System.out.println("\n");
+            }
             System.out.print(mas[i] + " ");
         }
         System.out.println("\n------------------------------------------");
