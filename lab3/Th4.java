@@ -19,15 +19,17 @@ public class Th4 extends Thread {
         }
         app.appendText("\nTh4 a terminat intervalul.\n");
 
-        while (th2.isAlive()) {
-            System.out.println("waiting");
-            app.appendText("waiting");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        // while (th2.isAlive()) {
+        // System.out.println("jhhgkkhg");
+        // }
+        System.out.println(th2.isAlive());
+        try {
+            // sleep(2000);
+            th2.join(); // wait for th2 to finish
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
         String grupa = "Grupa: CR-231";
         for (char c : grupa.toCharArray()) {
             app.appendText(c + "");

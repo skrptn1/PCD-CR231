@@ -10,8 +10,6 @@ import javafx.stage.Stage;
 public class App extends Application {
 
     private TextArea outputArea = new TextArea();
-    private Button startBtn = new Button("Start");
-    private Button clearBtn = new Button("Sterge");
     private int[] tablou;
 
     @Override
@@ -19,12 +17,9 @@ public class App extends Application {
         VBox root = new VBox(10);
         // git pull test
         root.setStyle("-fx-padding: 15;");
-        root.getChildren().addAll(startBtn, clearBtn, outputArea);
+        root.getChildren().addAll(outputArea);
         VBox.setVgrow(outputArea, Priority.ALWAYS);
-
-        startBtn.setOnAction(e -> runThreads());
-        clearBtn.setOnAction(e -> outputArea.clear());
-
+        runThreads();
         Scene scene = new Scene(root, 700, 500);
         primaryStage.setTitle("Lab 2");
         primaryStage.setScene(scene);
@@ -49,19 +44,19 @@ public class App extends Application {
         for (int i : tablou)
             appendText(i + " ");
         appendText("\n\n");
-        Th1 th1 = null;
         Th2 th2 = null;
-        Th3 th3 = null;
         Th4 th4 = null;
+        Th1 th1 = null;
+        Th3 th3 = null;
         th2 = new Th2("Th2", tablou, this);
         th4 = new Th4(th2, this);
-        th1 = new Th1("Th1", tablou, this, th4);
-        th3 = new Th3(th4, th1, this);
+        // th1 = new Th1("Th1", tablou, this, th4);
+        // th3 = new Th3(th4, th1, this);
 
-        new Thread(th1).start();
         new Thread(th2).start();
-        new Thread(th3).start();
         new Thread(th4).start();
+        // new Thread(th1).start();
+        // new Thread(th3).start();
     }
 
     public void appendText(String text) {

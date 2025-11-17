@@ -6,7 +6,6 @@ class Th1 extends Thread {
     int[] a = null;
     App app;
     Th4 th4;
-    boolean done = false;
 
     public Th1(String name, int[] a, App app, Th4 th4) {
         this.a = a;
@@ -32,28 +31,23 @@ class Th1 extends Thread {
                 }
             }
         }
-        done = true;
         app.appendText(name + " waiting for other threads...\n");
-
-        while (th4.isAlive()) {
+        try {
+            th4.join(); // wait for th4 to finish
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        String text = "Victor";
+        for (char c : text.toCharArray()) {
+            app.appendText(c + "");
+            // System.out.print(c);
             try {
-                sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
-        // String text = "Victor";
-        // for (char c : text.toCharArray()) {
-        // app.appendText(c + "");
-        // // System.out.print(c);
-        // try {
-        // Thread.sleep(100);
-        // } catch (InterruptedException e) {
-        // e.printStackTrace();
-        // }
-        // }
-        // app.appendText("\n");
+        app.appendText("\n");
 
     }
 }

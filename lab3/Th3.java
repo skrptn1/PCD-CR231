@@ -18,23 +18,21 @@ public class Th3 extends Thread {
         }
         app.appendText("\nTh3 a terminat intervalul.\n");
 
-        while (th1.isAlive()) {
+        try {
+            th1.join(); // wait for th1 to finish
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        String disciplina = "Programarea Concurentă și Distribuită";
+        for (char c : disciplina.toCharArray()) {
+            app.appendText(c + "");
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-
-        // String disciplina = "Programarea Concurentă și Distribuită";
-        // for (char c : disciplina.toCharArray()) {
-        // app.appendText(c + "");
-        // try {
-        // Thread.sleep(100);
-        // } catch (InterruptedException e) {
-        // e.printStackTrace();
-        // }
-        // }
-        // app.appendText("\n");
+        app.appendText("\n");
     }
 }
