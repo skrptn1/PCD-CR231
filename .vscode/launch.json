@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "lab4.Main",
+      "projectName": "pcd_dba3d47a"
+    },
+    {
+      "type": "java",
       "name": "Laborator4",
       "request": "launch",
       "mainClass": "lab3.Laborator4",
