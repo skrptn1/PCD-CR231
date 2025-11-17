@@ -18,10 +18,13 @@ public class Th3 extends Thread {
         }
         app.appendText("\nTh3 a terminat intervalul.\n");
 
-        try {
-            th1.join(); // wait for th1 to finish
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while (th1.isAlive()) {
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         String disciplina = "Programarea Concurentă și Distribuită";

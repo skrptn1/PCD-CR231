@@ -32,15 +32,19 @@ class Th1 extends Thread {
             }
         }
         app.appendText(name + " waiting for other threads...\n");
-        try {
-            th4.join(); // wait for th4 to finish
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+        while (th4.isAlive()) {
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
+
         String text = "Victor";
         for (char c : text.toCharArray()) {
             app.appendText(c + "");
-            // System.out.print(c);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

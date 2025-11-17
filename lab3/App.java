@@ -15,15 +15,14 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
         VBox root = new VBox(10);
-        // git pull test
         root.setStyle("-fx-padding: 15;");
         root.getChildren().addAll(outputArea);
         VBox.setVgrow(outputArea, Priority.ALWAYS);
-        runThreads();
         Scene scene = new Scene(root, 700, 500);
         primaryStage.setTitle("Lab 2");
         primaryStage.setScene(scene);
         primaryStage.show();
+        runThreads();
     }
 
     private void runThreads() {
@@ -50,13 +49,12 @@ public class App extends Application {
         Th3 th3 = null;
         th2 = new Th2("Th2", tablou, this);
         th4 = new Th4(th2, this);
-        // th1 = new Th1("Th1", tablou, this, th4);
-        // th3 = new Th3(th4, th1, this);
-
-        new Thread(th2).start();
-        new Thread(th4).start();
-        // new Thread(th1).start();
-        // new Thread(th3).start();
+        th1 = new Th1("Th1", tablou, this, th4);
+        th3 = new Th3(th4, th1, this);
+        th2.start();
+        th4.start();
+        th1.start();
+        th3.start();
     }
 
     public void appendText(String text) {

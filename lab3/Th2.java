@@ -29,12 +29,10 @@ class Th2 extends Thread {
                 }
             }
         }
-        System.out.println(currentThread().isAlive());
 
         String text = "Pavalache";
         for (char c : text.toCharArray()) {
             app.appendText(c + "");
-            // System.out.print(c);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -42,10 +40,5 @@ class Th2 extends Thread {
             }
         }
         app.appendText("\n");
-        try {
-            sleep(2000);
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
     }
 }
