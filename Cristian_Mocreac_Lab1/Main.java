@@ -17,12 +17,13 @@ public class Main {
         t2 = new TaskStartBackward(mas); 
         t4 = new TaskStartBackward(mas); 
 
+
         nameThread = new NameThread("Mocreac Cristian, Untila Maxim - Grupul 5");
 
         t1.setName("Maxim-Unu");      t1.start();
         t3.setName("Maxim-Doi");      t3.start();
-        t2.setName("Cristi-Trei");    t2.start();
-        t4.setName("Cristi-Patru");   t4.start();
+        t2.setName("Th3");    t2.start();
+        t4.setName("Th4");   t4.start();
 
         try {
             t1.join();
@@ -37,8 +38,7 @@ public class Main {
     }
 }
 
-class TaskStartForward extends Thread {
-    int[] mas;
+class TaskStartForward extends Thread {    int[] mas;
 
     public TaskStartForward(int[] mas) {
         this.mas = mas;
