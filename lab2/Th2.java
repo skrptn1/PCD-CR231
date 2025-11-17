@@ -1,59 +1,45 @@
 package lab2;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 class Th2 extends Thread {
     private int[] mas;
-    private int sumResult;
-    private JTextArea outputArea;
+    private JTextArea out;
 
-    public Th2(int[] mas, JTextArea outputArea) {
+    public Th2(int[] mas, JTextArea out) {
         this.mas = mas;
-        this.outputArea = outputArea;
-        this.sumResult = 0;
+        this.out = out;
     }
 
     @Override
     public void run() {
-        List<Integer> listaImpare = gasesteNumereImpareInvers();
-        calculeazaProduseInvers(listaImpare);
-        appendText("\nTh2: Suma produselor numerelor impare două câte două (de la ultimul) = " + sumResult + "\n");
-    }
+        int suma = 0;
 
-    
-    private List<Integer> gasesteNumereImpareInvers() {
-        List<Integer> listaImpare = new ArrayList<>();
-        for (int i = mas.length - 1; i >= 0; i--) {
-            if (mas[i] % 2 != 0) {
-                listaImpare.add(mas[i]);
+        for (int i = mas.length - 1; i > 0; i--) {
+            int a = mas[i];
+            int b = mas[i - 1];
+
+            if (a % 2 != 0 && b % 2 != 0) {
+                int produs = a * b;
+                suma += produs;
+
+                int fa = a, fb = b, fp = produs;
+
+                SwingUtilities.invokeLater(() ->
+                        out.append("TH2: Pereche (" + fa + ", " + fb +
+                                ") -> produs = " + fp + "\n")
+                );
+
+                try {
+                    Thread.sleep(150);
+                } catch (Exception ignored) {
+                }
             }
         }
-        appendText("Th2: Numere impare (de la final spre început): " + listaImpare + "\n");
-        return listaImpare;
-    }
 
-    
-    private void calculeazaProduseInvers(List<Integer> listaImpare) {
-        for (int i = 0; i < listaImpare.size() - 1; i += 2) {
-            int num1 = listaImpare.get(i);
-            int num2 = listaImpare.get(i + 1);
-            int produs = num1 * num2;
-            sumResult += produs;
-
-            appendText("Th2: Pereche (" + num1 + "," + num2 + ") -> produs: " + produs + "\n");
-
-            try {
-                Thread.sleep(80); 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    
-    private void appendText(String text) {
-        SwingUtilities.invokeLater(() -> outputArea.append(text));
+        int rezultatFinal = suma;
+        SwingUtilities.invokeLater(() ->
+                out.append("\nTH2: Suma totală = " + rezultatFinal + "\n\n")
+        );
     }
 }

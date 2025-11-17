@@ -2,11 +2,11 @@ package lab2;
 
 import javax.swing.*;
 
-class Th1 extends Thread {
+class Th3 extends Thread {
     private int[] mas;
     private JTextArea out;
 
-    public Th1(int[] mas, JTextArea out) {
+    public Th3(int[] mas, JTextArea out) {
         this.mas = mas;
         this.out = out;
     }
@@ -23,11 +23,11 @@ class Th1 extends Thread {
                 int produs = a * b;
                 suma += produs;
 
-                int fa = a, fb = b, fp = produs;
+                int finalA = a, finalB = b, finalProd = produs;
 
                 SwingUtilities.invokeLater(() ->
-                        out.append("TH1: Pereche (" + fa + ", " + fb +
-                                ") -> produs = " + fp + "\n")
+                        out.append("TH3: Pereche (" + finalA + "," + finalB +
+                                ") -> produs: " + finalProd + "\n")
                 );
 
                 try {
@@ -39,7 +39,7 @@ class Th1 extends Thread {
 
         int rezultatFinal = suma;
         SwingUtilities.invokeLater(() ->
-                out.append("\nTH1: Suma totală = " + rezultatFinal + "\n\n")
+                out.append("\nTH3: Suma produselor = " + rezultatFinal + "\n\n")
         );
     }
 }
