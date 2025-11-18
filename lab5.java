@@ -58,7 +58,7 @@ public class lab5 {
                 while (!executor.isTerminated()) {
                     Thread.sleep(100);
                 }
-                log("\nToate obiectele au fost produse și consumate. Program terminat.\n");
+                log("\nToate obiectele au fost produse si consumate. Program terminat.\n");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
