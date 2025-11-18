@@ -1,111 +1,207 @@
-// X producatori genereaza aleatoriu F obiecte care sunt consumate de Y consumatori
-// Fiecare consumator trebuie sa consume Z obiecte
-// Dimensiunea depozitului este D
-// X=2, Y=3, Z=11, D=8, Tip obiecte=numere pare, F=2 obiecte per ciclu de productie
-
+import javax.swing.*;
 import java.util.Random;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-public class lab5{
-    static final int BUFFER_SIZE = 8; // D
-    static final int PRODUCER = 2; // X
-    static final int CONSUMER = 3; // Y
-    static final int OBJECTS_PER_CONSUMER = 11; // Z
-    static final int TOTAL_ITEMS = CONSUMER * OBJECTS_PER_CONSUMER; // 3 * 11 = 33
-    static final int OBJECTS_PER_PRODUCTION = 2; // F
-    static final Integer POISON_PILL = -1;
-    static AtomicInteger consumedCount = new AtomicInteger(0);
+public class lab5 {
 
-    public static void main(String[] args) throws InterruptedException {
-        BlockingQueue<Integer> buffer = new ArrayBlockingQueue<>(BUFFER_SIZE);
-        AtomicInteger producedCount = new AtomicInteger(0);
-        CountDownLatch producerFinished = new CountDownLatch(PRODUCER);
-        
-        Random random = new Random();
-        ExecutorService executor = Executors.newFixedThreadPool(PRODUCER + CONSUMER);
-        
-        for(int i = 0; i < PRODUCER; i++) {
-            int producerId = i;
-            executor.submit(() -> {
-                try {
-                    while (true) {
-                        for (int j = 0; j < OBJECTS_PER_PRODUCTION; j++) {
-                            int currentCount = producedCount.incrementAndGet();
-                            if (currentCount > TOTAL_ITEMS) {
-                                producedCount.decrementAndGet();
-                                return;
-                            }
-                            
-                            int evenNumber = random.nextInt(51) * 2;
-                            
-                            if (buffer.remainingCapacity() == 0) {
-                                System.out.println("Producer " + producerId + " - DEPOZITUL ESTE PLIN! Așteaptă...");
-                            }
-                            buffer.put(evenNumber);
-                            System.out.println("Producer " + producerId + " a produs: " + evenNumber + " (elementul #" + currentCount + ")");
-                        }
-                        Thread.sleep(200);
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } finally {
-                    producerFinished.countDown();
-                }
-            });
-        }
-        for(int i = 0; i < CONSUMER; i++) {
-            int consumerId = i;
-            executor.submit(() -> {
-                int consumedByThis = 0;
-                while (consumedByThis < OBJECTS_PER_CONSUMER) {
-                    try {
-                        if (buffer.isEmpty()) {
-                            System.out.println("Consumatorul " + consumerId + " - DEPOZITUL ESTE GOL! Asteapta...");
-                        }
-                        
-                        Integer item = buffer.take();
-                        if (POISON_PILL.equals(item)) {
-                            System.out.println("Consumatorul " + consumerId + " a primit poison pill.");
-                            break;
-                        }
-                        
-                        consumedByThis++;
-                        int totalCount = consumedCount.incrementAndGet();
-                        System.out.println("Consumatorul " + consumerId + " a consumat: " + item + " (obiect #" + consumedByThis + "/" + OBJECTS_PER_CONSUMER + ", total: " + totalCount + ")");
-                        Thread.sleep(150);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                }
-                System.out.println("Consumatorul " + consumerId + " este îndestulat! (a consumat " + consumedByThis + " obiecte)");
-            });
+    public static final int X = 2;
+    public static final int Y = 3;
+    public static final int Z = 11;
+    public static final int D = 8;
+    public static final int F = 2;
+
+    static JTextArea sharedTextArea;
+
+    public static void main(String[] args) {
+
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Producător-Consumator - Varianta 2 (Thread Pool)");
+            frame.setSize(900, 600);
+
+            JTextArea textArea = new JTextArea();
+            textArea.setEditable(false);
+            JScrollPane scrollPane = new JScrollPane(textArea);
+            frame.add(scrollPane);
+
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+
+            sharedTextArea = textArea;
+
+            log("=== Pornire simulare producător-consumator (varianta 2 - Thread Pool) ===\n");
+
+            new Thread(lab5::runSimulation).start();
+        });
+    }
+
+    private static void runSimulation() {
+        int totalDeProduse = Y * Z;
+
+        DepozitPool depozit = new DepozitPool(D, totalDeProduse);
+        ExecutorService executor = Executors.newFixedThreadPool(X + Y);
+
+        for (int i = 0; i < X; i++) {
+            int producerId = i + 1;
+            executor.submit(new ProducatorPool(depozit, producerId, F));
         }
 
-        producerFinished.await();
-        
-        for (int i = 0; i < CONSUMER; i++) {
-            buffer.put(POISON_PILL);
+        for (int i = 0; i < Y; i++) {
+            int consumatorId = i + 1;
+            executor.submit(new ConsumatorPool(depozit, consumatorId, Z));
         }
 
         executor.shutdown();
-        try {
-            boolean terminated = executor.awaitTermination(60, TimeUnit.SECONDS);
-            if (!terminated) {
-                executor.shutdownNow();
-                System.out.println("Toate procesele au fost fortat finalizate.");
+
+        new Thread(() -> {
+            try {
+                while (!executor.isTerminated()) {
+                    Thread.sleep(100);
+                }
+                log("\nToate obiectele au fost produse și consumate. Program terminat.\n");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        } catch (InterruptedException e) {
-            System.out.println("Eroare la terminarea executorului.");
-        } finally {
-            executor.shutdownNow();
+        }).start();
+    }
+
+    public static void log(String msg) {
+        System.out.print(msg);
+        JTextArea ta = sharedTextArea;
+        if (ta != null) {
+            synchronized (ta) {
+                String s = msg;
+                SwingUtilities.invokeLater(() -> ta.append(s));
+            }
         }
-        System.out.println("Toate procesele au fost finalizate corect.");
+    }
+}
+
+class DepozitPool {
+    private final int[] buffer;
+    private int count = 0;
+
+    private final int totalDeProduse;
+    private int produse = 0;
+    private boolean terminat = false;
+
+    public DepozitPool(int dimensiune, int totalDeProduse) {
+        this.buffer = new int[dimensiune];
+        this.totalDeProduse = totalDeProduse;
+    }
+
+    public synchronized boolean produce(int valoare, int idProducator) {
+        if (produse >= totalDeProduse) return false;
+
+        while (count == buffer.length) {
+            lab5.log(">>> Depozitul este PLIN. Producatorul " + idProducator + " asteapta...\n");
+            try { wait(); } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+            if (produse >= totalDeProduse) return false;
+        }
+
+        buffer[count] = valoare;
+        count++;
+        produse++;
+
+        lab5.log("Producatorul " + idProducator + " a produs: " + valoare + 
+                " (in depozit: " + count + ", produse total: " + produse + ")\n");
+
+        if (produse == totalDeProduse) terminat = true;
+
+        notifyAll();
+        return true;
+    }
+
+    public synchronized Integer consuma(int idConsumator) {
+        while (count == 0 && !terminat) {
+            lab5.log("<<< Depozitul este GOL. Consumatorul " + idConsumator + " asteapta...\n");
+            try { wait(); } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return null;
+            }
+        }
+
+        if (count == 0 && terminat) return null;
+
+        count--;
+        int valoare = buffer[count];
+
+        notifyAll();
+        return valoare;
+    }
+}
+
+class ProducatorPool implements Runnable {
+    private final DepozitPool depozit;
+    private final int id;
+    private final int batchSize;
+    private final Random random = new Random();
+
+    public ProducatorPool(DepozitPool d, int id, int batchSize) {
+        this.depozit = d;
+        this.id = id;
+        this.batchSize = batchSize;
+    }
+
+    private int genereazaNumarPar() {
+        int n = 10 + random.nextInt(61) * 2;
+        return n;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            for (int i = 0; i < batchSize; i++) {
+                int val = genereazaNumarPar();
+                boolean ok = depozit.produce(val, id);
+                if (!ok) {
+                    lab5.log("Producatorul " + id + " se opreste (nu mai sunt necesare obiecte).\n");
+                    return;
+                }
+                try { Thread.sleep(random.nextInt(400)); } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
+    }
+}
+
+class ConsumatorPool implements Runnable {
+    private final DepozitPool depozit;
+    private final int id;
+    private final int deConsum;
+    private final Random random = new Random();
+
+    public ConsumatorPool(DepozitPool d, int id, int deConsum) {
+        this.depozit = d;
+        this.id = id;
+        this.deConsum = deConsum;
+    }
+
+    @Override
+    public void run() {
+        int consumateLocal = 0;
+
+        while (consumateLocal < deConsum) {
+            Integer val = depozit.consuma(id);
+            if (val == null) break;
+
+            lab5.log("Consumatorul " + id + " a consumat: " + val +
+                    " (consumat local: " + (consumateLocal + 1) + "/" + deConsum + ")\n");
+
+            consumateLocal++;
+
+            try { Thread.sleep(random.nextInt(500)); } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        lab5.log("Consumatorul " + id +
+                " s-a indestulat cu " + consumateLocal + " obiecte si se opreste.\n");
     }
 }
