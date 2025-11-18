@@ -39,7 +39,7 @@ class Th2 extends Thread {
             // TODO: handle exception
         }
 
-        String text = "Pavalache";
+        String text = "Pavalache Zaharenco";
         for (char c : text.toCharArray()) {
             app.appendText(c + "");
             try {

@@ -39,8 +39,8 @@ class Th1 extends Thread {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        // test comment
-        String text = "Victor";
+
+        String text = "Victor Mihai";
         for (char c : text.toCharArray()) {
             app.appendText(c + "");
             try {
