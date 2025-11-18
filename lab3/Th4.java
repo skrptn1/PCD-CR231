@@ -13,7 +13,8 @@ public class Th4 extends Thread {
 
         app.appendText("Pornire Th4 (interval descrescător 1567–1000):\n");
         for (int i = 1567; i >= 1000; i--) {
-            app.appendText("Th4: " + i + "\n");
+            String name = Thread.currentThread().getName();
+            app.appendText("Th4: " + i + "");
         }
         app.appendText("\nTh4 a terminat intervalul.\n");
 
