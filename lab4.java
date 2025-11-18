@@ -106,8 +106,7 @@ class Depozit {
         count++;
         produse++;
 
-        lab4.log("Producatorul " + idProducator + " a produs: " + valoare +
-                " (in depozit: " + count + ", produse total: " + produse + ")\n");
+        lab4.log(" (in depozit: " + count + ", produse total: " + produse + ")\n");
 
         if (produse == totalDeProduse) terminat = true;
 
@@ -130,8 +129,6 @@ class Depozit {
         int valoare = buffer[count];
         consumate++;
 
-        lab4.log("Consumatorul " + idConsumator + " a consumat: " + valoare +
-                " (in depozit: " + count + ", consumate total: " + consumate + ")\n");
 
         notifyAll();
         return valoare;
@@ -193,6 +190,9 @@ class Consumator extends Thread {
         while (consumateLocal < deConsum) {
             Integer val = depozit.consuma(id);
             if (val == null) break;
+
+            lab4.log("Consumatorul " + currentThread().getName() + " a consumat: " + val +
+                    "\n");
 
             consumateLocal++;
 
