@@ -15,7 +15,7 @@ public class Th3 extends Thread {
         app.appendText("Pornire Th3 (interval crescător 120–690):\n");
         for (int i = 120; i <= 690; i++) {
             String name = Thread.currentThread().getName();
-            app.appendText("Th3: " + i + "");
+            app.appendText(name + ": " + i + "");
         }
         app.appendText("\nTh3 a terminat intervalul.\n");
 
