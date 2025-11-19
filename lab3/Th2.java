@@ -2,14 +2,13 @@ package lab3;
 
 class Th2 extends Thread {
 
-    String name = "Th2";
     int[] a = null;
     App app;
     Th4 th4;
 
     public Th2(String name, int[] a, App app, Th4 th4) {
+        // super(name);
         this.a = a;
-        this.name = name;
         this.app = app;
         this.th4 = th4;
     }
@@ -24,7 +23,7 @@ class Th2 extends Thread {
                     s = s + a[i];
                     counter++;
                     if (counter == 2) {
-                        app.appendText("Victor " + name + " " + s + "\n");
+                        app.appendText("Victor " + currentThread().getName() + " " + s + "\n");
                         s = 0;
                         counter = 0;
                     }
@@ -50,5 +49,6 @@ class Th2 extends Thread {
         }
         app.appendText("\n");
         th4.interrupt();
+
     }
 }

@@ -23,6 +23,7 @@ public class App extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         runThreads();
+        // System.out.println(Thread.currentThread().getName());
     }
 
     private void runThreads() {
@@ -43,6 +44,7 @@ public class App extends Application {
         for (int i : tablou)
             appendText(i + " ");
         appendText("\n\n");
+        // System.out.println(Thread.currentThread().getName());
         Th2 th2 = null;
         Th4 th4 = null;
         Th1 th1 = null;
@@ -63,5 +65,6 @@ public class App extends Application {
 
     public static void main(String[] args) {
         launch(args);
+        // System.out.println(Thread.currentThread().getName());
     }
 }
