@@ -26,20 +26,16 @@ class Th2 extends Thread {
                 int fa = a, fb = b, fp = produs;
 
                 SwingUtilities.invokeLater(() ->
-                        out.append("TH2: Pereche (" + fa + ", " + fb +
-                                ") -> produs = " + fp + "\n")
+                        out.append("TH2 (C2): (" + fa + ", " + fb + ") -> produs = " + fp + "\n")
                 );
 
-                try {
-                    Thread.sleep(150);
-                } catch (Exception ignored) {
-                }
+                try { Thread.sleep(150); } catch (Exception ignored) {}
             }
         }
 
-        int rezultatFinal = suma;
+        int rezultat = suma;
         SwingUtilities.invokeLater(() ->
-                out.append("\nTH2: Suma totală = " + rezultatFinal + "\n\n")
+                out.append("\nTH2: Suma totală = " + rezultat + "\n\n")
         );
     }
 }

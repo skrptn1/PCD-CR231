@@ -23,23 +23,19 @@ class Th3 extends Thread {
                 int produs = a * b;
                 suma += produs;
 
-                int finalA = a, finalB = b, finalProd = produs;
+                int fa = a, fb = b, fp = produs;
 
                 SwingUtilities.invokeLater(() ->
-                        out.append("TH3: Pereche (" + finalA + "," + finalB +
-                                ") -> produs: " + finalProd + "\n")
+                        out.append("TH3 (C1): (" + fa + ", " + fb + ") -> produs = " + fp + "\n")
                 );
 
-                try {
-                    Thread.sleep(150);
-                } catch (Exception ignored) {
-                }
+                try { Thread.sleep(150); } catch (Exception ignored) {}
             }
         }
 
-        int rezultatFinal = suma;
+        int rezultat = suma;
         SwingUtilities.invokeLater(() ->
-                out.append("\nTH3: Suma produselor = " + rezultatFinal + "\n\n")
+                out.append("\nTH3: Suma totală = " + rezultat + "\n\n")
         );
     }
 }

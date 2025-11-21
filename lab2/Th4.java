@@ -23,11 +23,10 @@ class Th4 extends Thread {
                 int produs = a * b;
                 suma += produs;
 
-                int finalA = a, finalB = b, finalProd = produs;
+                int fa = a, fb = b, fp = produs;
 
                 SwingUtilities.invokeLater(() ->
-                        out.append("TH4: Pereche (" + finalA + "," + finalB +
-                                ") -> produs: " + finalProd + "\n")
+                        out.append("TH4 (C2): (" + fa + ", " + fb + ") -> produs = " + fp + "\n")
                 );
 
                 try {
@@ -37,9 +36,9 @@ class Th4 extends Thread {
             }
         }
 
-        int rezultatFinal = suma;
+        int rezultat = suma;
         SwingUtilities.invokeLater(() ->
-                out.append("\nTH4: Suma produselor = " + rezultatFinal + "\n\n")
+                out.append("\nTH4: Suma totală = " + rezultat + "\n\n")
         );
     }
 }

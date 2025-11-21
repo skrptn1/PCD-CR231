@@ -10,17 +10,17 @@ public class Main extends JFrame {
 
     public Main() {
         setTitle("Lucrare Laborator Thread-uri");
-        setSize(600, 400);
+        setSize(650, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         output = new JTextArea();
         output.setEditable(false);
-        output.setFont(new Font("Consolas", Font.PLAIN, 16));
+        output.setFont(new Font("Consolas", Font.PLAIN, 15));
 
         JScrollPane scroll = new JScrollPane(output);
         add(scroll, BorderLayout.CENTER);
 
-        // PORNEȘTE DIRECT FIRELE!
+        // PORNEȘTE AUTOMAT
         pornesteFire();
     }
 
@@ -30,9 +30,13 @@ public class Main extends JFrame {
         int[] mas = new int[100];
         Random r = new Random();
 
+        StringBuilder lista = new StringBuilder("Lista de numere generate:\n");
         for (int i = 0; i < mas.length; i++) {
             mas[i] = r.nextInt(100) + 1;
+            lista.append(mas[i]).append(" ");
         }
+
+        output.setText(lista.toString());
 
         Th1 t1 = new Th1(mas, output);
         Th2 t2 = new Th2(mas, output);
@@ -59,7 +63,7 @@ public class Main extends JFrame {
                 SwingUtilities.invokeLater(() -> output.append(String.valueOf(c)));
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException ignored) {
+                } catch (Exception ignored) {
                 }
             }
 
