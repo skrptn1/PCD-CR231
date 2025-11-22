@@ -3,42 +3,44 @@ package lab2;
 import javax.swing.*;
 
 class Th4 extends Thread {
-    private int[] mas;
-    private JTextArea out;
+    private final int[] mas;
+    private final JTextArea textArea;
 
-    public Th4(int[] mas, JTextArea out) {
+    public Th4(int[] mas, JTextArea textArea) {
         this.mas = mas;
-        this.out = out;
+        this.textArea = textArea;
     }
 
     @Override
     public void run() {
         int suma = 0;
+        int perechi = 0;
 
-        for (int i = mas.length - 1; i > 0; i--) {
-            int a = mas[i];
-            int b = mas[i - 1];
+        int i = mas.length - 1;
+        while (i >= 0 && mas[i] % 2 == 0) i--;
 
-            if (a % 2 != 0 && b % 2 != 0) {
-                int produs = a * b;
-                suma += produs;
+        while (i > 0) {
+            int j = i - 1;
+            while (j >= 0 && mas[j] % 2 == 0) j--;
 
-                int fa = a, fb = b, fp = produs;
+            if (j >= 0) {
+                int p = mas[i] * mas[j];
+                suma += p;
+                perechi++;
+                appendText(getName() + ": " + mas[i] + " * " + mas[j] + " = " + p + "\n");
 
-                SwingUtilities.invokeLater(() ->
-                        out.append("TH4 (C2): (" + fa + ", " + fb + ") -> produs = " + fp + "\n")
-                );
-
-                try {
-                    Thread.sleep(150);
-                } catch (Exception ignored) {
+                if (perechi % 2 == 0) {
+                    appendText(getName() + " Suma după 2 produse = " + suma + "\n\n");
+                    suma = 0;
                 }
             }
-        }
 
-        int rezultat = suma;
-        SwingUtilities.invokeLater(() ->
-                out.append("\nTH4: Suma totală = " + rezultat + "\n\n")
-        );
+            i = j;
+        }
+    }
+
+    private void appendText(String s) {
+        SwingUtilities.invokeLater(() -> textArea.append(s));
     }
 }
+
