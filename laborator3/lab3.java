@@ -28,6 +28,8 @@ class InterfataLab3 extends JFrame {
         Thread4 t4 = new Thread4("CR-231", textArea);
         Thread1 t1 = new Thread1("Radu, Mirela", textArea);
         Thread3 t3 = new Thread3("Programarea Concurenta si Distribuita", textArea);
+        t1.setName("Th1");
+        t2.setName("Th2");
         t3.setName("T3");
         t4.setName("T4");
         try {
@@ -67,35 +69,36 @@ class Thread1 extends Thread {
     }
 
     public void run() {
-        int primulPar = 0;
-        boolean gasit = false;
-        int suma = 0;
-        int count = 0;
-        for (int i = 1; i <= 100; i++) {
-            if (i % 2 == 0) {
-                if (!gasit) {
-                    primulPar = i;
-                    gasit = true;
-                } else {
-                    int produs = primulPar * i;
-                    append("Th1: " + primulPar + " * " + i + " = " + produs + "\n");
-                    suma = suma + produs;
-                    count++;
-                    if (count==2){
-                    append( currentThread().getName()+" suma=  " +suma);
-                    System.out.println();
-                    suma= 0;
+    int primulPar = 0;
+    boolean gasit = false;
+    int suma = 0;
+    int count = 0;
+
+    for (int i = 1; i <= 100; i++) {
+        if (i % 2 == 0) {
+            if (!gasit) {
+                primulPar = i;
+                gasit = true;
+            } else {
+                int produs = primulPar * i;
+                append(getName() + ": " + primulPar + " * " + i + " = " + produs + "\n");
+                suma += produs;
+                count++;
+
+                if (count == 2) {
+                    append(getName() + " suma = " + suma + "\n\n");
+                    suma = 0;
                     count = 0;
-                    }
-                        if (this.isAlive()) {
-                    }
-                    gasit = false;
-                    Thread.yield();
-                    try { Thread.sleep(100); } catch (InterruptedException ignored) {}
                 }
+
+                gasit = false;
+                Thread.yield();
+                try { Thread.sleep(100); } catch (InterruptedException ignored) {}
             }
         }
     }
+}
+
 
     public void afisareDate() {
         append("\nTh1:");
@@ -121,33 +124,36 @@ class Thread2 extends Thread {
     }
 
     public void run() {
-        int primulPar = 0;
-        boolean gasit = false;
-        int suma=0;
-        int count = 0;
-        for (int i = 100; i >= 1; i--) {
-            if (i % 2 == 0) {
-                if (!gasit) {
-                    primulPar = i;
-                    gasit = true;
-                } else {
-                    int produs = primulPar * i;
-                    append( currentThread().getName() + primulPar + " * " + i + " = " + produs + "\n");
-                    suma = suma + produs;
-                    count++;
-                    if (count==2){
-                    append( currentThread().getName()+" suma=  " +suma);
-                    System.out.println();
-                    suma= 0;
+    int primulPar = 0;
+    boolean gasit = false;
+    int suma = 0;
+    int count = 0;
+
+    for (int i = 100; i >= 1; i--) {
+        if (i % 2 == 0) {
+            if (!gasit) {
+                primulPar = i;
+                gasit = true;
+            } else {
+                int produs = primulPar * i;
+                append(getName() + ": " + primulPar + " * " + i + " = " + produs + "\n");
+                suma += produs;
+                count++;
+
+                if (count == 2) {
+                    append(getName() + " suma = " + suma + "\n\n");
+                    suma = 0;
                     count = 0;
-                    }
-                    gasit = false;
-                    Thread.yield();
-                    try { Thread.sleep(100); } catch (InterruptedException ignored) {}
                 }
+
+                gasit = false;
+                Thread.yield();
+                try { Thread.sleep(100); } catch (InterruptedException ignored) {}
             }
         }
     }
+}
+
 
     public void afisareDate() {
         append("\nTh2: ");
