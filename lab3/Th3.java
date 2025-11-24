@@ -1,41 +1,24 @@
 package lab3;
-
 public class Th3 extends Thread {
-    int from, to, step;
-    int[] Tablou;
-
-    public Th3(int from, int to, int step, int[] Tablou) {
-        this.from = from;
-        this.to = to;
-        this.step = step;
-        this.Tablou = Tablou;
-    }
 
     @Override
     public void run() {
-        int count = 0;
-        int suma1 = 0;
-        int suma2 = 0;
 
-        for (int i = from; i <= to; i += step) {
-            if (Tablou[i] % 2 != 0) {
-                if (count < 2) suma1 += Tablou[i];
-                else suma2 += Tablou[i];
-                count++;
+        System.out.println("Th3 - Interval [0, 798]:");
 
-                if (count == 4) {
-                    synchronized(System.out) {
-                        System.out.println(getName() + " -> Suma primelor 2 impare: " + suma1);
-                        System.out.println(getName() + " -> Suma urmatoarelor 2 impare: " + suma2);
-                        System.out.println(getName() + " -> Suma totala a celor 4 impare: " + (suma1 + suma2));
-                        System.out.println("---------------------------");
-                    }
-                    count = 0;
-                    suma1 = 0;
-                    suma2 = 0;
-                }
-            }
+        for (int i = 0; i <= 798; i++) {
+            System.out.print(i + " ");
         }
+        System.out.println();
+
+        
+        Thread.yield();
+
+        String disciplina = "Programarea Concurenta si Distribuita";
+        for (char c : disciplina.toCharArray()) {
+            System.out.print(c);
+            try { Thread.sleep(100); } catch (Exception e) {}
+        }
+        System.out.println();
     }
 }
-
