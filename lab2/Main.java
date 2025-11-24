@@ -42,7 +42,7 @@ public class Main {
         th3.setName("Th3");
 
         Thread th4 = new Th4(mas, textArea);
-        th4.setName("Th4");
+        th4.setName("Thread4");
 
         th1.start();
         th2.start();
