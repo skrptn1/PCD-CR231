@@ -37,8 +37,8 @@ class InterfataLab3 extends JFrame {
             t1.join();
             t2.join();
 
-           t3.start();
-            t4.join(); 
+            t3.start();
+            t4.join();
             t4.start();
             t4.join();
 
@@ -81,17 +81,20 @@ class Thread1 extends Thread {
                     append("Th1: " + primulPar + " * " + i + " = " + produs + "\n");
                     suma = suma + produs;
                     count++;
-                    if (count==2){
-                    append( currentThread().getName()+" suma=  " +suma);
-                    System.out.println();
-                    suma= 0;
-                    count = 0;
+                    if (count == 2) {
+                        append(currentThread().getName() + " suma=  " + suma);
+                        System.out.println();
+                        suma = 0;
+                        count = 0;
                     }
-                        if (this.isAlive()) {
+                    if (this.isAlive()) {
                     }
                     gasit = false;
                     Thread.yield();
-                    try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ignored) {
+                    }
                 }
             }
         }
@@ -101,9 +104,12 @@ class Thread1 extends Thread {
         append("\nTh1:");
         for (char c : nume.toCharArray()) {
             append(String.valueOf(c));
-            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
         }
-    
+
     }
 
     private void append(String text) {
@@ -123,7 +129,7 @@ class Thread2 extends Thread {
     public void run() {
         int primulPar = 0;
         boolean gasit = false;
-        int suma=0;
+        int suma = 0;
         int count = 0;
         for (int i = 100; i >= 1; i--) {
             if (i % 2 == 0) {
@@ -132,18 +138,21 @@ class Thread2 extends Thread {
                     gasit = true;
                 } else {
                     int produs = primulPar * i;
-                    append( currentThread().getName() + primulPar + " * " + i + " = " + produs + "\n");
+                    append(currentThread().getName() + primulPar + " * " + i + " = " + produs + "\n");
                     suma = suma + produs;
                     count++;
-                    if (count==2){
-                    append( currentThread().getName()+" suma=  " +suma);
-                    System.out.println();
-                    suma= 0;
-                    count = 0;
+                    if (count == 2) {
+                        append(currentThread().getName() + " suma=  " + suma);
+                        System.out.println();
+                        suma = 0;
+                        count = 0;
                     }
                     gasit = false;
                     Thread.yield();
-                    try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ignored) {
+                    }
                 }
             }
         }
@@ -153,7 +162,10 @@ class Thread2 extends Thread {
         append("\nTh2: ");
         for (char c : nume.toCharArray()) {
             append(String.valueOf(c));
-            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
         }
 
     }
@@ -162,7 +174,6 @@ class Thread2 extends Thread {
         SwingUtilities.invokeLater(() -> output.append(text));
     }
 }
-
 
 class Thread3 extends Thread {
     private final JTextArea output;
@@ -176,9 +187,12 @@ class Thread3 extends Thread {
     public void run() {
         append("\n Pornire Th3\n");
         for (int i = 234; i <= 1000; i++) {
-            
-            append(currentThread().getName() +" "+i + " ");
-            try { Thread.sleep(2); } catch (InterruptedException ignored) {}
+
+            append(currentThread().getName() + " " + i + " ");
+            try {
+                Thread.sleep(2);
+            } catch (InterruptedException ignored) {
+            }
         }
 
     }
@@ -187,9 +201,12 @@ class Thread3 extends Thread {
         append("\nTh3: ");
         for (char c : disciplina.toCharArray()) {
             append(String.valueOf(c));
-            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
         }
-       
+
     }
 
     private void append(String text) {
@@ -209,9 +226,13 @@ class Thread4 extends Thread {
     public void run() {
         append("\n Pornire Th4 \n");
         for (int i = 1234; i >= 456; i--) {
-            append(currentThread().getName() +" "+i + " ");
-            if (i % 20 == 0) append("\n");
-            try { Thread.sleep(2); } catch (InterruptedException ignored) {}
+            append(currentThread().getName() + " " + i + " ");
+            if (i % 20 == 0)
+                append("\n");
+            try {
+                Thread.sleep(2);
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
@@ -219,9 +240,12 @@ class Thread4 extends Thread {
         append("\nTh4: ");
         for (char c : grupa.toCharArray()) {
             append(String.valueOf(c));
-            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
         }
-        
+
     }
 
     private void append(String text) {
