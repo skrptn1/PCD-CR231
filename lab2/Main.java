@@ -13,6 +13,9 @@ public class Main {
         for (int i = 0; i < mas.length; i++) {
             mas[i] = rand.nextInt(100) + 1;
             sb.append(mas[i]).append(" ");
+            if (i == 49) {
+                sb.append("\n");
+            }
         }
 
         JFrame frame = new JFrame("Lab2 - Sume produse numere impare");
