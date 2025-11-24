@@ -1,40 +1,54 @@
 package lab3;
 
 public class Th2 extends Thread {
-    int from, to, step;
-    int[] Tablou;
 
-    public Th2(int from, int to, int step, int[] Tablou) {
-        this.from = from;
-        this.to = to;
-        this.step = step;
-        this.Tablou = Tablou;
+    int[] v;
+    Thread t1;
+
+    public Th2(int[] v, Thread t1) {
+        this.v = v;
+        this.t1 = t1;
+        setName("Th2");
     }
 
     @Override
     public void run() {
-        int count = 0;
-        int suma1 = 0;
-        int suma2 = 0;
 
-        for (int i = from; i >= to; i -= step) {
-            if (Tablou[i] % 2 != 0) {
-                if (count < 2) suma1 += Tablou[i];
-                else suma2 += Tablou[i];
+        System.out.println("Th2 parcurge intervalul [0..798] în ordine descrescătoare:");
+        for (int i = 798; i >= 0; i--) {
+            System.out.print(i + " ");
+        }
+        System.out.println("\n");
+
+        int count = 0;
+        int s1 = 0, s2 = 0;
+
+        for (int i = 798; i >= 0; i--) {
+            if (v[i] % 2 != 0) {
+
+                if (count < 2) s1 += v[i];
+                else s2 += v[i];
                 count++;
 
                 if (count == 4) {
-                    synchronized(System.out) {
-                        System.out.println(getName() + " -> Suma primelor 2 impare: " + suma1);
-                        System.out.println(getName() + " -> Suma urmatoarelor 2 impare: " + suma2);
-                        System.out.println(getName() + " -> Suma totala a celor 4 impare: " + (suma1 + suma2));
-                        System.out.println("---------------------------");
-                    }
+                    System.out.println("Th2 → " + s1 + " + " + s2 + " = " + (s1+s2));
                     count = 0;
-                    suma1 = 0;
-                    suma2 = 0;
+                    s1 = s2 = 0;
                 }
             }
         }
+
+        // Așteaptă Th1 pentru afișarea ordonată
+        try { t1.join(); } catch (Exception e) {}
+
+        slowPrint("Ungureanu");
+    }
+
+    private void slowPrint(String t) {
+        for (char c : t.toCharArray()) {
+            System.out.print(c);
+            try { Thread.sleep(100); } catch (Exception e) {}
+        }
+        System.out.println();
     }
 }

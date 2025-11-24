@@ -1,41 +1,37 @@
 package lab3;
 
 public class Th4 extends Thread {
-    int from, to, step;
-    int[] Tablou;
 
-    public Th4(int from, int to, int step, int[] Tablou) {
-        this.from = from;
-        this.to = to;
-        this.step = step;
-        this.Tablou = Tablou;
+    Thread t3;
+
+    public Th4(Thread t3) {
+        this.t3 = t3;
+        setName("Th4");
     }
 
     @Override
     public void run() {
-        int count = 0;
-        int suma1 = 0;
-        int suma2 = 0;
 
-        for (int i = from; i >= to; i -= step) {
-            if (Tablou[i] % 2 != 0) {
-                if (count < 2) suma1 += Tablou[i];
-                else suma2 += Tablou[i];
-                count++;
+        System.out.println("Th4 parcurge intervalul [1456..2111] invers:");
 
-                if (count == 4) {
-                    synchronized(System.out) {
-                        System.out.println(getName() + " -> Suma primelor 2 impare: " + suma1);
-                        System.out.println(getName() + " -> Suma urmatoarelor 2 impare: " + suma2);
-                        System.out.println(getName() + " -> Suma totala a celor 4 impare: " + (suma1 + suma2));
-                        System.out.println("---------------------------");
-                    }
-                    count = 0;
-                    suma1 = 0;
-                    suma2 = 0;
-                }
-            }
+        for (int i = 2111; i >= 1456; i--) {
+            System.out.print(i + " ");
         }
+        System.out.println("\n");
+
+        try { t3.join(); } catch (Exception e) {}
+
+        slowPrint("CR-231");
+    }
+
+    private void slowPrint(String t) {
+        for (char c : t.toCharArray()) {
+            System.out.print(c);
+            try { Thread.sleep(100); } catch (Exception e) {}
+        }
+        System.out.println();
     }
 }
+
+
 

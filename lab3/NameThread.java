@@ -1,6 +1,7 @@
 package lab3;
 
 public class NameThread extends Thread {
+
     private String text;
 
     public NameThread(String text) {
@@ -11,14 +12,9 @@ public class NameThread extends Thread {
     public void run() {
         for (int i = 0; i < text.length(); i++) {
             System.out.print(text.charAt(i));
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            try { Thread.sleep(100); } catch (Exception e) {}
         }
         System.out.println();
+        
     }
 }
-
-
