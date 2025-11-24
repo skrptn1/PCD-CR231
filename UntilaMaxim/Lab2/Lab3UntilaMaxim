@@ -1,0 +1,137 @@
+import java.util.Random;
+
+public class Lab3UntilaMaxim {
+
+    // Metodă comună pentru afișare cu întârziere de 100 ms între litere
+    public static void printSlowly(String label, String text) {
+        System.out.print(label);
+        for (char c : text.toCharArray()) {
+            System.out.print(c);
+            try {
+                Thread.sleep(100); // 100 ms între litere
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        System.out.println();
+    }
+
+    // Th1 – Sarcina 1: sume de produse pentru poziții pare, două câte două, de la început spre sfârșit
+    static class Task1Thread extends Thread {
+        private final int[] data;
+        private final String prenume;
+
+        public Task1Thread(int[] data, String prenume) {
+            this.data = data;
+            this.prenume = prenume;
+            setName("Th1");
+        }
+
+        @Override
+        public void run() {
+            System.out.println(getName() + " – începe Sarcina 1");
+
+            long suma = 0;
+            // Pozițiile pare în sens de index 0,2,4,... (zero-based)
+            // Două câte două: (a[0], a[2]), (a[2], a[4]), (a[4], a[6]) etc.
+            for (int i = 0; i + 2 < data.length; i += 2) {
+                int a = data[i];
+                int b = data[i + 2];
+                int produs = a * b;
+                System.out.printf("%s: (%d, %d) -> %d%n", getName(), a, b, produs);
+                suma += produs;
+            }
+
+            System.out.println(getName() + " – Suma produselor (Sarcina 1) = " + suma);
+
+            // După calcule, afișăm prenumele studentului literă cu literă
+            printSlowly(getName() + " – Prenume student: ", prenume);
+        }
+    }
+
+    // Th2 – Sarcina 2: sume de produse pentru poziții pare, două câte două, de la sfârșit spre început
+    static class Task2Thread extends Thread {
+        private final int[] data;
+        private final Task1Thread th1; // pentru sincronizare cu Th1
+        private final String nume;
+
+        public Task2Thread(int[] data, Task1Thread th1, String nume) {
+            this.data = data;
+            this.th1 = th1;
+            this.nume = nume;
+            setName("Th2");
+        }
+
+        @Override
+        public void run() {
+            try {
+                // Metoda de sincronizare 1: join()
+                // Th2 nu începe calculele până când Th1 nu își termină sarcina numerică
+                th1.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            System.out.println(getName() + " – începe Sarcina 2 (după terminarea lui Th1)");
+
+            long suma = 0;
+            // Parcurgere din spate, poziții pare (în sens zero-based) două câte două:
+            // (a[n-1], a[n-3]) dacă sunt pare, etc. -> aici mergem din  ultima poziție spre început
+            for (int i = data.length - 1; i - 2 >= 0; i -= 2) {
+                int a = data[i];
+                int b = data[i - 2];
+                int produs = a * b;
+                System.out.printf("%s: (%d, %d) -> %d%n", getName(), a, b, produs);
+                suma += produs;
+            }
+
+            System.out.println(getName() + " – Suma produselor (Sarcina 2) = " + suma);
+
+            // Metoda de sincronizare 2: așteptăm până Th1 termină complet (inclusiv textul, dacă încă rulează)
+            while (th1.isAlive()) {
+                Thread.yield(); // cedăm procesorul altor fire până când Th1 se termină
+            }
+
+            // După ce Th1 chiar s-a terminat, afișăm numele de familie literă cu literă
+            printSlowly(getName() + " – Nume student: ", nume);
+        }
+    }
+
+    public static void main(String[] args) {
+        // Diapazon de date (vectorul comun tuturor firelor)
+        int n = 10; // poți pune 100 ca în variantă de laborator
+        int[] mas = new int[n];
+
+        Random rnd = new Random();
+        System.out.print("Vectorul de lucru: ");
+        for (int i = 0; i < mas.length; i++) {
+            mas[i] = rnd.nextInt(100) + 1; // valori între 1 și 100
+            System.out.print(mas[i] + " ");
+        }
+        System.out.println("\n-----------------------------");
+
+        // Nume / prenume – modifică cu datele tale reale
+        String prenume = "Maxim";
+        String nume = "Untila";
+
+        // Creăm firele Th1 și Th2
+        Task1Thread th1 = new Task1Thread(mas, prenume);
+        Task2Thread th2 = new Task2Thread(mas, th1, nume);
+
+        // Pornim firele
+        th1.start();
+        th2.start();
+
+        // Așteptăm terminarea firelor 1 și 2
+        try {
+            th1.join();
+            th2.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("Main – Firele Th1 și Th2 au terminat execuția.");
+        System.out.println("Partea ta (membru 1) este realizată. Firele Th3 și Th4 pot fi adăugate separat.");
+    }
+}
