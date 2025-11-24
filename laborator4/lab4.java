@@ -32,7 +32,6 @@ public class lab4 {
         Producator p2 = new Producator(depozit, 2, logArea);
         Producator p3 = new Producator(depozit, 3, logArea);
 
-
         Consumator c1 = new Consumator(depozit, 1, logArea);
         Consumator c2 = new Consumator(depozit, 2, logArea);
         Consumator c3 = new Consumator(depozit, 3, logArea);
@@ -67,7 +66,7 @@ class Depozit {
         this.log = logArea;
     }
 
-    public synchronized boolean produce(char obj, int id) {
+    public synchronized boolean produce(char obj1,char obj2, int id) {
     if (consumatoriSatisfacuti == totalConsumatori)
         return false;
     
@@ -79,7 +78,16 @@ class Depozit {
         try { wait(); } catch (InterruptedException ignored) {}
     }
 
-    buffer[putIndex] = obj;
+    if (buffer.length - count < 2) {
+        buffer[putIndex] = obj1;
+    putIndex = (putIndex + 1) % buffer.length;
+    count++;
+    
+    }
+    buffer[putIndex] = obj1;
+    putIndex = (putIndex + 1) % buffer.length;
+    count++;
+    buffer[putIndex] = obj2;
     putIndex = (putIndex + 1) % buffer.length;
     count++;
     notifyAll();
@@ -134,13 +142,14 @@ class Producator extends Thread {
     @Override
     public void run() {
         while (true) {
-            for (int i = 0; i < 2; i++) {
-                char vocal = Depozit.VOCALE[random.nextInt(Depozit.VOCALE.length)];
-                if (!depozit.produce(vocal, id)) {
+            for (int i = 0; i < 1; i++) {
+                char vocal1 = Depozit.VOCALE[random.nextInt(Depozit.VOCALE.length)];
+                 char vocal2 = Depozit.VOCALE[random.nextInt(Depozit.VOCALE.length)];
+                if (!depozit.produce(vocal1, vocal2, id)) {
                     log("Producător " + id + " s-a oprit.");
                     return;
                 }
-                log("Producător " + id + " a produs: " + vocal);
+                log("Producător " + id + " a produs: " + vocal1+ "," +vocal2);
             }
 
             try { sleep(random.nextInt(400)); } 
@@ -150,7 +159,7 @@ class Producator extends Thread {
 }
 
 class Consumator extends Thread {
-    private final Depozit depozit;
+    private final Depozit depozit;  
     private final int id;
     private int consumate = 0;
     private final JTextArea log;
