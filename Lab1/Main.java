@@ -19,10 +19,17 @@ public class Main {
 
         nameThread = new NameThread("Mocreac Cristian, Untila Maxim - Grupul 5");
 
+<<<<<<< HEAD
+        t1.setName("Maxim-Unu");      t1.start();
+        t3.setName("Maxim-Doi");      t3.start();
+        t2.setName("Th3");    t2.start();
+        t4.setName("Th4");   t4.start();
+=======
         t1.setName("Th1");      t1.start();
         t3.setName("Th3");      t3.start();
         t2.setName("Cristi-Trei");    t2.start();
         t4.setName("Cristi-Patru");   t4.start();
+>>>>>>> 332ce75b2a623395dc6ae4324601f1ac95bb2811
 
         try {
             t1.join();
