@@ -1,6 +1,5 @@
-
 import java.util.Random;
-//111111
+
 public class lab4 {
     public static void main(String[] args) {
 
@@ -56,17 +55,33 @@ class Producator extends Thread {
     Depozit depozit;
     int id;
     Random r = new Random();
-    char[] vowels = {'A', 'E', 'I', 'O', 'U'};
+    char[] vocale = {'A', 'E', 'I', 'O', 'U'};
 
     public Producator(Depozit d, int id) {
         this.depozit = d;
         this.id = id;
     }
+
+    @Override
+    public void run() {
+        try {
+            while (Consumator.terminati < 3) {
+                for (int i = 0; i < 2; i++) {
+                    char v = vocale[r.nextInt(vocale.length)];
+                    depozit.produce(v);
+                    System.out.println("Producator " + id + " a produs " + v);
+                }
+                sleep(200);
+            }
+        } catch (InterruptedException e) {}
+    }
 }
+
 class Consumator extends Thread {
     Depozit depozit;
     int id;
     int necesita = 3;
+    static int terminati = 0;
 
     public Consumator(Depozit d, int id) {
         this.depozit = d;
@@ -74,17 +89,20 @@ class Consumator extends Thread {
     }
 
     @Override
-public void run() {
-    try {
-        while (true) {
-            for (int i = 0; i < 2; i++) {
-                char v = vowels[r.nextInt(vowels.length)];
-                depozit.produce(v);
-                System.out.println("Producator " + id + " a produs " + v);
+    public void run() {
+        try {
+            while (necesita > 0) {
+                char v = depozit.consume();
+                System.out.println("Consumator " + id + " a consumat " + v);
+                necesita--;
+                sleep(300);
+            }
+            System.out.println("Consumator " + id + " a terminat cele 3 obiecte.");
+
+            synchronized (Consumator.class) {
+                terminati++;
             }
 
-            sleep(200); // pauză după cele 2 obiecte
-        }
-    } catch (InterruptedException e) {}
-}
+        } catch (InterruptedException e) {}
+    }
 }
