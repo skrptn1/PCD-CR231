@@ -1,6 +1,6 @@
 
 import java.util.Random;
-
+//111111
 public class lab4 {
     public static void main(String[] args) {
 
