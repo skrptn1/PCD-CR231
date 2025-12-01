@@ -12,6 +12,7 @@ public class Lab31 {
         frame.add(scrollPane);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+        
 
         int[] a = new int[100];
         for (int i = 0; i < a.length; i++) {
