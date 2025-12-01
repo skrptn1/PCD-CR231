@@ -71,9 +71,7 @@ class Producer extends Thread {
                         impare[(int) (Math.random() * 9)]);
                 sleep(100);
             } catch (Exception e) {
-                // return;
                 break;
-                // TODO: handle exception
             }
         }
     }
