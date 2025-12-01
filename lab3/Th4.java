@@ -38,7 +38,7 @@ public class Th4 extends Thread {
         taTh4.append("\nSarcina 4 realizată.\n");
 
         // AFIȘARE GRUPA CU 100 MS
-        String grupa = "Grupa 2131";
+        String grupa = "Grupa CR231";
 
         taTh4.append("\nGrupa:\n");
 
