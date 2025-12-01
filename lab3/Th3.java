@@ -16,17 +16,17 @@ public class Th3 extends Thread {
 
         taTh3.append("Th3 – Parcurgere de la început interval [126, 987]:\n");
 
-        // PARCURGERE DE LA ÎNCEPUT
+       
         for (int v : mas) {
             if (v >= 126 && v <= 987) {
                 taTh3.append(v + "\n");
             }
         }
 
-        // Sarcina 3
+        
         taTh3.append("\nSarcina 3 realizată.\n");
 
-        // AFIȘARE DISCIPLINĂ CU 100 MS
+        
         String disciplina = "Programarea Paralelă și Distribuită";
 
         taTh3.append("\nDisciplina:\n");

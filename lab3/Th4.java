@@ -6,7 +6,7 @@ public class Th4 extends Thread {
 
     private int[] mas;
     private JTextArea taTh4;
-    private Th3 th3; // referință la Th3 pentru sincronizare
+    private Th3 th3; 
 
     public Th4(int[] mas, JTextArea taTh4, Th3 th3) {
         this.mas = mas;
@@ -17,16 +17,16 @@ public class Th4 extends Thread {
     @Override
     public void run() {
 
-        // VERIFICĂ DACĂ TH3 ÎNCĂ TRĂIEȘTE → isAlive()
+        
         if (th3 != null && th3.isAlive()) {
             try {
-                th3.join();  // Th4 AȘTEAPTĂ Th3
+                th3.join();  
             } catch (Exception ignored) {}
         }
 
         taTh4.append("Th4 – Parcurgere de la sfârșit interval [213, 899]:\n");
 
-        // PARCURGERE INVERSĂ
+        
         for (int i = mas.length - 1; i >= 0; i--) {
             int v = mas[i];
             if (v >= 213 && v <= 899) {
@@ -34,10 +34,10 @@ public class Th4 extends Thread {
             }
         }
 
-        // Sarcina 4
+        
         taTh4.append("\nSarcina 4 realizată.\n");
 
-        // AFIȘARE GRUPA CU 100 MS
+        
         String grupa = "Grupa 2131";
 
         taTh4.append("\nGrupa:\n");
