@@ -1,41 +1,32 @@
 package lab3;
+
 import javax.swing.*;
 
 public class Th3 extends Thread {
-
     private int[] mas;
-    private JTextArea taTh3;
+    private JTextArea ta;
 
-    public Th3(int[] mas, JTextArea taTh3) {
+    public Th3(int[] mas, JTextArea ta) {
         this.mas = mas;
-        this.taTh3 = taTh3;
+        this.ta = ta;
     }
 
     @Override
     public void run() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Th3 – Parcurgere de la început interval [126, 987]:\n");
 
-        taTh3.append("Th3 – Parcurgere de la început interval [126, 987]:\n");
-
-       
         for (int v : mas) {
             if (v >= 126 && v <= 987) {
-                taTh3.append(v + "\n");
+                sb.append(currentThread().getName()+getName()).append("\n");
+                try { Thread.sleep(1); } catch (InterruptedException ignored) {}
+                Thread.yield();
             }
         }
 
-        
-        taTh3.append("\nSarcina 3 realizată.\n");
+        sb.append("Disciplina: Programarea Paralelă și Distribuită\n");
+        sb.append("Th3 a terminat.\n\n");
 
-        
-        String disciplina = "Programarea Paralelă și Distribuită";
-
-        taTh3.append("\nDisciplina:\n");
-
-        for (char c : disciplina.toCharArray()) {
-            taTh3.append(String.valueOf(c));
-            try { Thread.sleep(100); } catch (Exception ignored) {}
-        }
-
-        taTh3.append("\nTh3 a terminat.\n");
+        ta.append(sb.toString());
     }
 }
