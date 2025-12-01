@@ -35,7 +35,6 @@ public class Th4 extends Thread {
         }
 
         sb.append("Grupa: CR231\n");
-        sb.append("Prenumele și Numele studentului: Pricop Alexandru si Burlea Vladislav\n");
         sb.append("Th4 a terminat.\n\n");
 
         ta.append(sb.toString());
