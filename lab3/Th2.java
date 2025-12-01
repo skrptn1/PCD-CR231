@@ -15,7 +15,6 @@ class Th2 extends Thread {
 
     @Override
     public void run() {
-        // Așteaptă Th1
         while (!th1Flag[0]) {
             try { Thread.sleep(50); } catch (InterruptedException ignored) {}
         }
@@ -29,12 +28,11 @@ class Th2 extends Thread {
                 if (j >= 0) {
                     int produs = mas[i] * mas[j];
                     taTh2.append(mas[i] + " * " + mas[j] + " = " + produs + "\n");
-                    i = j; // sări peste elementul folosit
+                    i = j;
                 }
             }
         }
 
-        // Afișare nume student cu 100ms pauză între litere
         String nume = "Pricop";
         taTh2.append("Numele studentului este:\n");
         for (char c : nume.toCharArray()) {
