@@ -138,5 +138,6 @@ public class Main {
             c.join();
         }
         System.out.println("\nToate thread-urile au finalizat.");
+        //Finalizarea programului
     }
 }
