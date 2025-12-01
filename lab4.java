@@ -62,20 +62,7 @@ class Producator extends Thread {
         this.depozit = d;
         this.id = id;
     }
-
-    @Override
-    public void run() {
-        try {
-            while (true) {
-                char v = vowels[r.nextInt(vowels.length)];
-                depozit.produce(v);
-                System.out.println("Producator " + id + " a produs " + v);
-                sleep(200);
-            }
-        } catch (InterruptedException e) {}
-    }
 }
-
 class Consumator extends Thread {
     Depozit depozit;
     int id;
@@ -87,15 +74,17 @@ class Consumator extends Thread {
     }
 
     @Override
-    public void run() {
-        try {
-            while (necesita > 0) {
-                char v = depozit.consume();
-                System.out.println("Consumator " + id + " a consumat " + v);
-                necesita--;
-                sleep(300);
+public void run() {
+    try {
+        while (true) {
+            for (int i = 0; i < 2; i++) {
+                char v = vowels[r.nextInt(vowels.length)];
+                depozit.produce(v);
+                System.out.println("Producator " + id + " a produs " + v);
             }
-            System.out.println("Consumator " + id + " a terminat cele 3 obiecte.");
-        } catch (InterruptedException e) {}
-    }
+
+            sleep(200); // pauză după cele 2 obiecte
+        }
+    } catch (InterruptedException e) {}
+}
 }

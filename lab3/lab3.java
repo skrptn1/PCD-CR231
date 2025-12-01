@@ -12,9 +12,6 @@ public class lab3 {
     static Th3 third  = new Th3();
     static Th4 fourth = new Th4();
 
-    static int pairone = 0;
-    static int pairtwo = 0;
-
     public static void main(String[] args) {
 
         System.out.println("Printing Array:");
@@ -26,7 +23,6 @@ public class lab3 {
             if (b[i] % 2 != 0) counter++; 
         }
         System.out.println();
-
 
         a = new int[counter];
         int k = 0;
@@ -50,7 +46,6 @@ public class lab3 {
             e.printStackTrace();
         }
     }
-
 
     static void slowPrint(String text) {
         for (char c : text.toCharArray()) {
