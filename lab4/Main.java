@@ -3,7 +3,6 @@ package lab4;
 import java.util.ArrayList;
 
 class Store {
-    private final int CAPACITY = Main.D;
     ArrayList<Integer> stockList = new ArrayList<Integer>();
 
     public synchronized void get(String consumerName) {
@@ -22,8 +21,8 @@ class Store {
 
     public synchronized void put(String producerName, int a, int b) {
 
-        while (stockList.size() + Main.F >= CAPACITY) {
-            System.out.println("+++ Depozitul e plin (" + CAPACITY + "). " + producerName + " asteapta. +++");
+        while (stockList.size() + Main.OB_MAX_PE_PRODUCATOR >= Main.MAX_DEPOZIT) {
+            System.out.println("+++ Depozitul e plin (" + Main.MAX_DEPOZIT + "). " + producerName + " asteapta. +++");
             try {
                 wait();
             } catch (Exception e) {
@@ -69,7 +68,7 @@ class Producer extends Thread {
 
 class Consumer extends Thread {
     private Store s;
-    private final int CONSUME_COUNT = Main.Z; // Z = 2 (obiecte per consumator)
+    private final int CONSUME_COUNT = Main.OB_MAX_PE_CONSUMATOR; // Z = 2 (obiecte per consumator)
 
     public Consumer(Store s) {
         this.s = s;
@@ -83,26 +82,25 @@ class Consumer extends Thread {
         }
 
         System.out.println(getName() + " a luat " + CONSUME_COUNT + " numere. Thread-ul a finalizat.");
+        try {
+            sleep(100);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 }
 
-// Clasa Principala
 public class Main {
-
-    // Variabile statice publice pentru Varianta 2:
-    public static final int X = 3; // Numarul de Producatori
-    public static final int Y = 4; // Numarul de Consumatori
-    public static final int Z = 2; // Obiecte pe care trebuie sa le consume fiecare Consumator
-    public static final int D = 5; // Dimensiunea maxima a Depozitului (Buffer-ului)
-    public static final int F = 2; // Obiecte produse de fiecare Producator la o singura apelare put()
-
-    // Obiectivul total de consum: Y * Z = 8
-    public static final int MAX_CONSUMPTION = Y * Z;
+    public static final int NR_PROD = 3;
+    public static final int NR_CONS = 4;
+    public static final int OB_MAX_PE_CONSUMATOR = 2;
+    public static final int MAX_DEPOZIT = 5;
+    public static final int OB_MAX_PE_PRODUCATOR = 2;
+    public static final int CONSUM_MAXIM_TOTAL = NR_CONS * OB_MAX_PE_CONSUMATOR;
 
     public static void main(String[] args) throws InterruptedException {
         Store store = new Store();
 
-        // Initializare Producatori (X=3)
         Producer p1 = new Producer(store);
         p1.setName("Producator 1");
         Producer p2 = new Producer(store);
@@ -110,7 +108,6 @@ public class Main {
         Producer p3 = new Producer(store);
         p3.setName("Producator 3");
 
-        // Initializare Consumatori (Y=4)
         Consumer c1 = new Consumer(store);
         c1.setName("Consumator 1");
         Consumer c2 = new Consumer(store);
@@ -127,8 +124,7 @@ public class Main {
         c2.start();
         c3.start();
         c4.start();
-        while (c1.isAlive() || c2.isAlive() || c3.isAlive() || c4.isAlive()) {
-        }
+
         System.out.println("\nToate thread-urile au finalizat.");
     }
 }
