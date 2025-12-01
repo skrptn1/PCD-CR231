@@ -1,3 +1,4 @@
+package seminare;
 /*
  * 3 producatori si 4 consumatori
  * depozitul este de 14 obiecte
