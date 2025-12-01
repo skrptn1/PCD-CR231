@@ -18,7 +18,7 @@ public class Th3 extends Thread {
 
         for (int v : mas) {
             if (v >= 126 && v <= 987) {
-                sb.append(currentThread().getName()+getName()).append("\n");
+                sb.append(currentThread().getName() + " " + v).append("\n");
                 try { Thread.sleep(1); } catch (InterruptedException ignored) {}
                 Thread.yield();
             }
