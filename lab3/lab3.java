@@ -2,47 +2,61 @@ package lab3;
 
 public class lab3 {
 
+    static int size = 100;
+    static int counter = 0;
+    static int[] b = new int[size];
+    static int[] a;
+
+    static Th1 first  = new Th1();
+    static Th2 second = new Th2();
+    static Th3 third  = new Th3();
+    static Th4 fourth = new Th4();
+
+    static int pairone = 0;
+    static int pairtwo = 0;
+
     public static void main(String[] args) {
 
-        int[] Tablou = new int[2112];
+        System.out.println("Printing Array:");
+        for (int i = 0; i < size; i++) {
+            b[i] = (int) Math.round((Math.random() * 100) + 15);
+            System.out.print(b[i] + " ");
 
-        // generăm vectorul
-        for (int i = 0; i < 2112; i++) {
-            Tablou[i] = (int)(Math.random() * 99);
+            if (i == 50) System.out.println();
+            if (b[i] % 2 != 0) counter++; 
+        }
+        System.out.println();
+
+
+        a = new int[counter];
+        int k = 0;
+
+        for (int i = 0; i < size; i++) {
+            if (b[i] % 2 != 0)
+                a[k++] = b[i];
         }
 
-        // afișăm primele 100 numere pentru verificare
-        System.out.println("TABLOU (primele 100 numere):");
-        for (int i = 0; i < 100; i++) {
-            System.out.print(Tablou[i] + " ");
+        first.start();
+        second.start();
+        third.start();
+        fourth.start();
+
+        try {
+            first.join();
+            second.join();
+            third.join();
+            fourth.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        System.out.println("\n");
+    }
 
 
-        // ============================
-        // 1) Th1 și Th2 → interval [0..798]
-        // ============================
-
-        Th1 t1 = new Th1(Tablou);
-        Th2 t2 = new Th2(Tablou, t1);
-
-        t1.start();
-        t2.start();
-
-
-
-        System.out.println("\n=== Th1 & Th2 au terminat intervalul [0..798] ===\n");
-
-        // =============================
-        // 2) Th3 și Th4 → interval [1456..2111]
-        // =============================
-
-        Th3 t3 = new Th3();
-        Th4 t4 = new Th4(t3);
-
-        t3.start();
-        t4.start();
-
-        System.out.println("\n=== Th3 & Th4 au terminat intervalul [1456..2111] ===\n");
+    static void slowPrint(String text) {
+        for (char c : text.toCharArray()) {
+            System.out.print(c);
+            try { Thread.sleep(100); } catch (Exception e) {}
+        }
+        System.out.println();
     }
 }

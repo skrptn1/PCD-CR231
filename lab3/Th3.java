@@ -2,28 +2,21 @@ package lab3;
 
 public class Th3 extends Thread {
 
-    public Th3() {
-        setName("Th3");
-    }
-
     @Override
     public void run() {
 
-        System.out.println("Th3 parcurge intervalul [1456..2111] înainte:");
+        System.out.println("Starting Thread 3 (interval [0..798])");
 
-        for (int i = 1456; i <= 2111; i++) {
+        for (int i = 0; i <= 798; i++) {
             System.out.print( " " + currentThread().getName() + " " + i );
         }
-        System.out.println("\n");
-
-        slowPrint("Programare Concurenta si Distribuita");
-    }
-
-    private void slowPrint(String t) {
-        for (char c : t.toCharArray()) {
-            System.out.print(c);
-            try { Thread.sleep(100); } catch (Exception e) {}
-        }
         System.out.println();
+
+        // așteaptă Th1
+        while (lab3.first.isAlive()) {
+            try { Thread.sleep(300); } catch (InterruptedException e) {}
+        }
+
+        lab3.slowPrint("3: P C D");
     }
 }

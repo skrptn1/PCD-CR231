@@ -2,50 +2,29 @@ package lab3;
 
 public class Th1 extends Thread {
 
-    int[] v;
-
-    public Th1(int[] v) {
-        this.v = v;
-        setName("Th1");
-    }
-
     @Override
     public void run() {
 
-        // Afișare interval
-        System.out.println("Th1 parcurge intervalul [0..798] în ordine crescătoare:");
-        for (int i = 0; i <= 798; i++) {
-            System.out.print( " " + currentThread().getName() + " " + i );
-        }
-        System.out.println("\n");
+        System.out.println("Starting Thread 1 (sume impare de la inceput)");
 
-        int count = 0;
-        int s1 = 0, s2 = 0;
+        for (int i = 0; i < lab3.counter; i += 4) {
 
-        for (int i = 0; i <= 798; i++) {
-            if (v[i] % 2 != 0) {
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
 
-                if (count < 2) s1 += v[i];
-                else s2 += v[i];
-                count++;
+            if (i + 4 >= lab3.counter) continue;
 
-                if (count == 4) {
-                    System.out.println("Th1 → " + s1 + " + " + s2 + " = " + (s1+s2));
-                    count = 0;
-                    s1 = s2 = 0;
-                }
-            }
+            lab3.pairone =lab3.a[i] +lab3.a[i + 1];
+        lab3.pairtwo =lab3.a[i + 2] +lab3.a[i + 3];
+
+            int result =lab3.pairone +lab3.pairtwo;
+
+            System.out.println("Th1: " +lab3.pairone + " + " +lab3.pairtwo + " = " + result);
         }
 
-        // Afișare finală
-        slowPrint("Ungureanu , Munteanu ");
-    }
-
-    private void slowPrint(String t) {
-        for (char c : t.toCharArray()) {
-            System.out.print(c);
-            try { Thread.sleep(100); } catch (Exception e) {}
+        while (lab3.fourth.isAlive()) {
+            try { Thread.sleep(300); } catch (InterruptedException e) {}
         }
-        System.out.println();
+
+    lab3.slowPrint("1: Vlad,Maxim");
     }
 }
