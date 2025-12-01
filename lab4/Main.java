@@ -62,6 +62,7 @@ class Producer extends Thread {
         this.s = s;
     }
 
+    // test
     @Override
     public void run() {
         int[] impare = new int[] { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 };
