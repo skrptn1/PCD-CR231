@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "ProducatorConsumator",
+      "request": "launch",
+      "mainClass": "lab4.ProducatorConsumator",
+      "projectName": "pcd_labs_9be8a543"
+    },
+    {
+      "type": "java",
       "name": "Main",
       "request": "launch",
       "mainClass": "lab4.Main",
