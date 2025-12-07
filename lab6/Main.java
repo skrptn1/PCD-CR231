@@ -5,128 +5,139 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 class Store {
-    ArrayList<Integer> stock = new ArrayList<>();
-    int totalProduced = 0;
-    int totalConsumed = 0;
+    ArrayList<Integer> stockList = new ArrayList<Integer>();
+    int total_consumat = 0;
 
-    public synchronized void produce(String name) {
-        while (stock.size() > 0) {
+    public synchronized void get(String consumerName) {
+        while (stockList.size() < 1) {
             try {
-                System.out.println(name + " asteapta: depozitul nu este gol");
                 wait();
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
             }
         }
-
-        // producatorii produc până se umple D
-        while (stock.size() < Main.D && totalProduced < Main.Z) {
-            int value = Main.IMAPRE[(int) (Math.random() * Main.IMAPRE.length)];
-            stock.add(value);
-            totalProduced++;
-            System.out.println(name + " a produs: " + value);
-        }
-
-        printStatus();
+        System.out.println(consumerName + " a consumat: " +
+                stockList.get(stockList.size() - 1));
+        stockList.remove(stockList.size() - 1);
+        total_consumat++;
+        printStockStatus();
         notifyAll();
     }
 
-    public synchronized void consume(String name) {
-        while (stock.size() < Main.D) {
+    public synchronized void put(String producerName, int a) {
+        if (total_consumat >= Main.CONSUM_MAXIM_TOTAL) {
+            throw new RuntimeException("A fost consumat numarul necesar");
+        }
+        while (stockList.size() + Main.OB_MAX_PE_PRODUCATOR >= Main.MAX_DEPOZIT) {
+            System.out.println(producerName + " incearca sa puna, dar nu incape in depozit");
             try {
-                System.out.println(name + " asteapta: depozitul nu este plin");
                 wait();
-            } catch (InterruptedException ignored) {
+            } catch (Exception e) {
+                // TODO: handle exception
             }
         }
-
-        // consumatorii consuma TOT
-        while (!stock.isEmpty() && totalConsumed < Main.Z) {
-            int val = stock.remove(stock.size() - 1);
-            totalConsumed++;
-            System.out.println(name + " a consumat: " + val);
-        }
-
-        printStatus();
+        stockList.add(a);
+        System.out.println(producerName + " a produs: " + a);
+        printStockStatus();
         notifyAll();
     }
 
-    private void printStatus() {
-        if (stock.isEmpty())
-            System.out.println("Depozitul este GOL.");
-        else {
-            System.out.print("Depozitul: [ ");
-            for (int x : stock)
-                System.out.print(x + " ");
-            System.out.println("]");
+    private void printStockStatus() {
+        if (stockList.isEmpty()) {
+            System.out.println("Depozitul este gol.");
+        } else {
+            System.out.print("[ ");
+            for (int number : stockList) {
+                System.out.print(number + " ");
+            }
+            System.out.print("]");
+            System.out.println();
         }
         System.out.println();
     }
 }
 
 class Producer implements Runnable {
-    private final Store store;
-    private final String name;
+    private Store s;
+    private String name;
 
-    Producer(Store s, String n) {
-        store = s;
-        name = n;
+    public Producer(Store s, String name) {
+        this.s = s;
+        this.name = name;
     }
 
     @Override
     public void run() {
-        while (store.totalProduced < Main.Z) {
-            store.produce(name);
+        int[] impare = new int[] { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 };
+        while (true) {
             try {
-                Thread.sleep(100);
-            } catch (Exception ignored) {
+                if (s.stockList.size() == Main.MAX_DEPOZIT) {
+                    Thread.sleep(50);
+                } else {
+                    s.put(name, impare[(int) (Math.random() * 9)]);
+                    Thread.sleep(100);
+                }
+            } catch (Exception e) {
+                break;
             }
         }
-        System.out.println(name + " si-a terminat munca.");
     }
 }
 
 class Consumer implements Runnable {
-    private final Store store;
-    private final String name;
+    private Store s;
+    private String name;
 
-    Consumer(Store s, String n) {
-        store = s;
-        name = n;
+    public Consumer(Store s, String name) {
+        this.s = s;
+        this.name = name;
     }
 
     @Override
     public void run() {
-        while (store.totalConsumed < Main.Z) {
-            store.consume(name);
+        for (int i = 0; i < Main.OB_MAX_PE_CONSUMATOR; i++) {
             try {
-                Thread.sleep(100);
-            } catch (Exception ignored) {
+                if (s.stockList.isEmpty()) {
+                    Thread.sleep(100);
+                } else {
+                    s.get(name);
+                    Thread.sleep(100);
+                }
+
+            } catch (Exception e) {
             }
         }
-        System.out.println(name + " si-a terminat munca.");
     }
 }
 
 public class Main {
+    public static final int NR_PROD = 3;
+    public static final int NR_CONS = 4;
+    public static final int OB_MAX_PE_CONSUMATOR = 1;
+    public static final int MAX_DEPOZIT = 5;
+    public static final int OB_MAX_PE_PRODUCATOR = 1;
+    public static final int CONSUM_MAXIM_TOTAL = 45;
 
-    public static final int X = 3; // producători
-    public static final int Y = 4; // consumatori
-    public static final int Z = 45; // total obiecte
-    public static final int D = 5; // dimensiunea depozitului
-    public static final int F = 2; // 2 obiecte pe producere
-    public static final int[] IMAPRE = { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 };
-
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws InterruptedException {
         Store store = new Store();
-        ExecutorService pool = Executors.newFixedThreadPool(X + Y);
 
-        for (int i = 0; i < X; i++)
-            pool.submit(new Producer(store, "Producator_" + (i + 1)));
+        ExecutorService pool = Executors.newFixedThreadPool(NR_PROD + NR_CONS);
 
-        for (int i = 0; i < Y; i++)
-            pool.submit(new Consumer(store, "Consumator_" + (i + 1)));
+        for (int i = 0; i < NR_PROD; i++) {
+            pool.execute(new Producer(store, "Producator_" + (i + 1)));
+        }
+        for (int i = 0; i < NR_CONS; i++) {
+            pool.execute(new Consumer(store, "Consumator_" + (i + 1)));
+        }
 
         pool.shutdown();
+        while (!pool.isTerminated()) {
+            Thread.sleep(50);
+        }
+
+        System.out.println("\nToate thread-urile au finalizat.");
     }
 }
+
+// modifica ca producatorii sa produca doar cand depozitul este gol, iar
+// consumatorii sa consume doar cand depozitul este plin. Pentru sincronizare
+// utilizeaza NUMAI clase din Java

@@ -111,7 +111,6 @@ public class Main {
     public static final int MAX_DEPOZIT = 5;
     public static final int OB_MAX_PE_PRODUCATOR = 2;
     public static final int CONSUM_MAXIM_TOTAL = NR_CONS * OB_MAX_PE_CONSUMATOR;
-    public static int total_consumat = 0;
 
     public static void main(String[] args) throws InterruptedException {
         Store store = new Store();

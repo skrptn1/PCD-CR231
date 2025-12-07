@@ -5,43 +5,39 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 class Store {
-    ArrayList<Integer> stockList = new ArrayList<>();
+    ArrayList<Integer> stockList = new ArrayList<Integer>();
     int total_consumat = 0;
 
     public synchronized void get(String consumerName) {
-        while (stockList.isEmpty()) {
+        while (stockList.size() < 1) {
             try {
                 wait();
-            } catch (Exception ignored) {
+            } catch (InterruptedException e) {
             }
         }
-
-        int val = stockList.remove(stockList.size() - 1);
+        System.out.println(consumerName + " a consumat: " +
+                stockList.get(stockList.size() - 1));
+        stockList.remove(stockList.size() - 1);
         total_consumat++;
-        System.out.println(consumerName + " a consumat: " + val);
-
         printStockStatus();
         notifyAll();
     }
 
     public synchronized void put(String producerName, int a, int b) {
-
         if (total_consumat >= Main.CONSUM_MAXIM_TOTAL) {
-            return;
+            throw new RuntimeException("A fost consumat numarul necesar");
         }
-
-        while (stockList.size() + Main.OB_MAX_PE_PRODUCATOR > Main.MAX_DEPOZIT) {
-            System.out.println(producerName + " încearcă să pună, dar depozitul este plin!");
+        while (stockList.size() + Main.OB_MAX_PE_PRODUCATOR >= Main.MAX_DEPOZIT) {
+            System.out.println(producerName + " incearca sa puna, dar nu incape in depozit");
             try {
                 wait();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                // TODO: handle exception
             }
         }
-
         stockList.add(a);
         stockList.add(b);
         System.out.println(producerName + " a produs: " + a + ", " + b);
-
         printStockStatus();
         notifyAll();
     }
@@ -51,102 +47,89 @@ class Store {
             System.out.println("Depozitul este gol.");
         } else {
             System.out.print("[ ");
-            for (int x : stockList)
-                System.out.print(x + " ");
-            System.out.println("]");
+            for (int number : stockList) {
+                System.out.print(number + " ");
+            }
+            System.out.print("]");
+            System.out.println();
         }
         System.out.println();
     }
 }
 
 class Producer implements Runnable {
-    private final Store store;
-    private final String name;
+    private Store s;
+    private String name;
 
-    public Producer(Store store, String name) {
-        this.store = store;
+    public Producer(Store s, String name) {
+        this.s = s;
         this.name = name;
     }
 
     @Override
     public void run() {
-        int[] impare = { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 };
-        while (Main.running) {
-            int a = impare[(int) (Math.random() * impare.length)];
-            int b = impare[(int) (Math.random() * impare.length)];
-
-            store.put(name, a, b);
-
+        int[] impare = new int[] { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 };
+        while (true) {
             try {
+                s.put(name, impare[(int) (Math.random() * 9)],
+                        impare[(int) (Math.random() * 9)]);
                 Thread.sleep(100);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                break;
             }
         }
     }
 }
 
 class Consumer implements Runnable {
-    private final Store store;
-    private final String name;
+    private Store s;
+    private String name;
 
-    public Consumer(Store store, String name) {
-        this.store = store;
+    public Consumer(Store s, String name) {
+        this.s = s;
         this.name = name;
     }
 
     @Override
     public void run() {
         for (int i = 0; i < Main.OB_MAX_PE_CONSUMATOR; i++) {
-            store.get(name);
+            s.get(name);
+            if (i == Main.OB_MAX_PE_CONSUMATOR - 1) {
+                System.out.println(name + " a finalizat.");
+            }
             try {
                 Thread.sleep(100);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
             }
         }
-
-        System.out.println(name + " a finalizat consumul.");
     }
 }
 
 public class Main {
-
-    public static final int NR_PROD = 3; // X
-    public static final int NR_CONS = 4; // Y
-    public static final int OB_MAX_PE_CONSUMATOR = 2; // Z
-    public static final int MAX_DEPOZIT = 5; // D
-    public static final int OB_MAX_PE_PRODUCATOR = 2; // F
+    public static final int NR_PROD = 3;
+    public static final int NR_CONS = 4;
+    public static final int OB_MAX_PE_CONSUMATOR = 2;
+    public static final int MAX_DEPOZIT = 5;
+    public static final int OB_MAX_PE_PRODUCATOR = 2;
     public static final int CONSUM_MAXIM_TOTAL = NR_CONS * OB_MAX_PE_CONSUMATOR;
 
-    public static volatile boolean running = true;
-
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws InterruptedException {
         Store store = new Store();
 
         ExecutorService pool = Executors.newFixedThreadPool(NR_PROD + NR_CONS);
 
-        // pornește producători
         for (int i = 0; i < NR_PROD; i++) {
-            pool.submit(new Producer(store, "Producator_" + (i + 1)));
+            pool.execute(new Producer(store, "Producator_" + (i + 1)));
         }
-
-        // pornește consumatori
         for (int i = 0; i < NR_CONS; i++) {
-            pool.submit(new Consumer(store, "Consumator_" + (i + 1)));
+            pool.execute(new Consumer(store, "Consumator_" + (i + 1)));
         }
 
-        // așteptăm finalizarea consumatorilor
-        while (store.total_consumat < CONSUM_MAXIM_TOTAL) {
-            try {
-                Thread.sleep(100);
-            } catch (Exception ignored) {
-            }
+        pool.shutdown();
+        while (!pool.isTerminated()) {
+            Thread.sleep(50);
         }
 
-        running = false; // oprim producătorii
-
-        pool.shutdownNow();
-
-        System.out.println("\n=== Toate thread-urile au finalizat ===");
+        System.out.println("\nToate thread-urile au finalizat.");
     }
 }

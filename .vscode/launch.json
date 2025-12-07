@@ -5,6 +5,20 @@
       "name": "Main",
       "request": "launch",
       "mainClass": "lab6.Main",
+      "projectName": "pcd_dba3d47a"
+    },
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "lab5.Main",
+      "projectName": "pcd_dba3d47a"
+    },
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "lab6.Main",
       "projectName": "PCD laborator_6584bccb"
     },
     {
