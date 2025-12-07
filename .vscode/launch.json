@@ -2,6 +2,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "lab6.Main",
+      "projectName": "PCD laborator_6584bccb"
+    },
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "lab5.Main",
+      "projectName": "PCD laborator_6584bccb"
+    },
+    {
+      "type": "java",
       "name": "ProducatorConsumator",
       "request": "launch",
       "mainClass": "lab4.ProducatorConsumator",
