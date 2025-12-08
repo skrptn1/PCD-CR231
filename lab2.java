@@ -33,10 +33,9 @@ public class lab2 {
 }
 
 
-// ------------------------------------------------------------------
+
 // THREAD 1: De la primul element → ultimul
-// ------------------------------------------------------------------
-class CounterFirst extends Thread {
+
     int from, to, step;
     int[] Tablou;
 
@@ -75,9 +74,7 @@ class CounterFirst extends Thread {
 }
 
 
-// ------------------------------------------------------------------
 // THREAD 2: De la ultimul element → primul
-// ------------------------------------------------------------------
 class CounterLast extends Thread {
     int from, to, step;
     int[] Tablou;
