@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class App extends Application {
 
-    // ---------- Logger simplu pentru JavaFX ----------
     public static class FXLogger {
         public static TextArea area;
 
@@ -27,7 +26,6 @@ public class App extends Application {
         }
     }
 
-    // ---------- STORE ----------
     static class Store {
 
         ArrayList<Integer> stock = new ArrayList<>();
@@ -99,7 +97,6 @@ public class App extends Application {
         }
     }
 
-    // ---------- PRODUCER ----------
     static class Producer implements Runnable {
         private final Store store;
         private final String name;
@@ -122,7 +119,6 @@ public class App extends Application {
         }
     }
 
-    // ---------- CONSUMER ----------
     static class Consumer implements Runnable {
         private final Store store;
         private final String name;
@@ -145,7 +141,6 @@ public class App extends Application {
         }
     }
 
-    // ---------- CONSTANTE ----------
     public static class Main {
         public static final int X = 3;
         public static final int Y = 4;
@@ -155,7 +150,6 @@ public class App extends Application {
         public static final int[] IMAPRE = { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 };
     }
 
-    // ---------- JAVAFX ----------
     @Override
     public void start(Stage stage) {
 
