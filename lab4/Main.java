@@ -25,7 +25,7 @@ class Store {
         if (total_consumat >= Main.CONSUM_MAXIM_TOTAL) {
             throw new RuntimeException("A fost consumat numarul necesar");
         }
-        while (stockList.size() + Main.OB_MAX_PE_PRODUCATOR >= Main.MAX_DEPOZIT) {
+        while (stockList.size() + Main.OB_MAX_PE_PRODUCATOR > Main.MAX_DEPOZIT) {
             System.out.println(producerName + " incearca sa puna, dar nu incape in depozit");
             try {
                 wait();
