@@ -37,11 +37,12 @@ public class Lab4 extends JFrame {
         new Producator(depozit, 3).start();
         new Producator(depozit, 4).start();
 
-        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(600);
 
         new Consumator(depozit, 1).start();
         new Consumator(depozit, 2).start();
         new Consumator(depozit, 3).start();
+        } catch (InterruptedException ignored) {}
     }
 
     public static void main(String[] args) {
