@@ -1,21 +1,15 @@
-/*Sunt dați 3 producători care generează aleatoriu F (F - fiecare producător produce câte 2 obiecte) 
-obiecte care sunt consumate de 3 consumatori. De afişat informaţia despre producerea şi consumarea 
-obiectelor, mesajele despre cazurile când “depozitul e gol sau plin”. 
-Toate operaţiile se efectuează până când fiecare consumator este îndestulat cu 5 obiecte.
-Dimensiunea depozitului este 6.
-Tip Obiecte: vocale*/
-
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class lab4 {
+public class lab5 {
     public static void main(String[] args) {
 
         Depozit depozit = new Depozit(6, 3);
 
-        JFrame frame = new JFrame("Producător - Consumator");
+        JFrame frame = new JFrame("Producător - Consumator cu Thread Pool");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(700, 450);
         frame.setLayout(new BorderLayout());
@@ -28,20 +22,19 @@ public class lab4 {
         frame.setVisible(true);
         depozit.setLogArea(logArea);
 
-        Producator p1 = new Producator(depozit, 1, logArea);
-        Producator p2 = new Producator(depozit, 2, logArea);
-        Producator p3 = new Producator(depozit, 3, logArea);
+        ExecutorService executor = Executors.newFixedThreadPool(6); 
 
-        Consumator c1 = new Consumator(depozit, 1, logArea);
-        Consumator c2 = new Consumator(depozit, 2, logArea);
-        Consumator c3 = new Consumator(depozit, 3, logArea);
+        // Adăugăm producători
+        for (int i = 1; i <= 3; i++) {
+            executor.submit(new Producator(depozit, i, logArea));
+        }
 
-        p1.start();
-        p2.start();
-        p3.start();
-        c1.start();
-        c2.start();
-        c3.start();
+        // Adăugăm consumatori
+        for (int i = 1; i <= 3; i++) {
+            executor.submit(new Consumator(depozit, i, logArea));
+        }
+
+        executor.shutdown();
     }
 }
 
@@ -67,44 +60,35 @@ class Depozit {
     }
 
     public synchronized boolean produce(char obj1,char obj2, int id) {
-    if (consumatoriSatisfacuti == totalConsumatori)
-        return false;
-    
-    while (count == buffer.length) {
-        if (consumatoriSatisfacuti == totalConsumatori) 
+        if (consumatoriSatisfacuti == totalConsumatori)
             return false;
-        if (log != null)
-            SwingUtilities.invokeLater(() -> log.append("Depozit plin\n"));
-        try { wait(); } catch (InterruptedException ignored) {}
-    }
 
-    if (buffer.length - count < 2) {
+        while (count >= buffer.length) {
+            if (consumatoriSatisfacuti == totalConsumatori) return false;
+            if (log != null)
+                SwingUtilities.invokeLater(() -> log.append("Depozit plin\n"));
+            try { wait(); } catch (InterruptedException ignored) {}
+        }
+
         buffer[putIndex] = obj1;
-    putIndex = (putIndex + 1) % buffer.length;
-    count++;
+        putIndex = (putIndex + 1) % buffer.length;
+        count++;
 
+        buffer[putIndex] = obj2;
+        putIndex = (putIndex + 1) % buffer.length;
+        count++;
+
+        notifyAll();
+        return true;
     }
-    buffer[putIndex] = obj1;
-    putIndex = (putIndex + 1) % buffer.length;
-    count++;
-    buffer[putIndex] = obj2;
-    putIndex = (putIndex + 1) % buffer.length;
-    count++;
-    notifyAll();
-    return true;
-}
-
 
     public synchronized char consuma() {
-
-            while (count == 0) {
-         if (consumatoriSatisfacuti == totalConsumatori)
-        return '\0';
-        if (log != null)
-             SwingUtilities.invokeLater(() -> log.append("Depozit gol\n"));
-        try { wait(); } catch (InterruptedException ignored) {}
-    }
-
+        while (count == 0) {
+            if (consumatoriSatisfacuti == totalConsumatori) return '\0';
+            if (log != null)
+                SwingUtilities.invokeLater(() -> log.append("Depozit gol\n"));
+            try { wait(); } catch (InterruptedException ignored) {}
+        }
 
         char obj = buffer[getIndex];
         getIndex = (getIndex + 1) % buffer.length;
@@ -123,7 +107,7 @@ class Depozit {
     public int getCapacity() { return buffer.length; }
 }
 
-class Producator extends Thread {
+class Producator implements Runnable {
     private final Depozit depozit;
     private final int id;
     private final JTextArea log;
@@ -142,23 +126,24 @@ class Producator extends Thread {
     @Override
     public void run() {
         while (true) {
-            for (int i = 0; i < 1; i++) {
-                char vocal1 = Depozit.VOCALE[random.nextInt(Depozit.VOCALE.length)];
-                 char vocal2 = Depozit.VOCALE[random.nextInt(Depozit.VOCALE.length)];
-                if (!depozit.produce(vocal1, vocal2, id)) {
-                    log("Producător " + id + " s-a oprit.");
-                    return;
-                }
-                log("Producător " + id + " a produs: " + vocal1+ "," +vocal2);
+            char vocal1 = Depozit.VOCALE[random.nextInt(Depozit.VOCALE.length)];
+            char vocal2 = Depozit.VOCALE[random.nextInt(Depozit.VOCALE.length)];
+
+            if (!depozit.produce(vocal1, vocal2, id)) {
+                log("Producător " + id + " s-a oprit.");
+                return;
             }
 
-            try { sleep(random.nextInt(400)); } 
+            log(" Producător " + id + " a produs: " + vocal1 + "," + vocal2);
+
+
+            try { Thread.sleep(random.nextInt(400)); } 
             catch (InterruptedException ignored) {}
         }
     }
 }
 
-class Consumator extends Thread {
+class Consumator implements Runnable {
     private final Depozit depozit;  
     private final int id;
     private int consumate = 0;
@@ -178,18 +163,16 @@ class Consumator extends Thread {
     public void run() {
         while (consumate < 5) {
             char obj = depozit.consuma();
-            if (obj == '\0')
-                break;
+            if (obj == '\0') break;
             consumate++;
             log("Consumator " + id + " a consumat: " + obj);
 
-            try { 
-                sleep((int)(Math.random()*300)); 
-            } 
+            try { Thread.sleep((int)(Math.random()*300)); } 
             catch (InterruptedException ignored) {}
         }
 
         depozit.consumatorSatisfacut();
-        log("Consumator " + id + " a terminat consumul (5 obiecte).");
+        log(" Consumator " + id + " a terminat consumul (5 obiecte).");
+
     }
 }
