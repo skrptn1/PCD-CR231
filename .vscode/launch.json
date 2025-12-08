@@ -2,6 +2,21 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Lab1",
+      "request": "launch",
+      "mainClass": "lab1.Lab1",
+      "projectName": "PCD laborator_6584bccb"
+    },
+    {
+      "type": "java",
+      "name": "App",
+      "request": "launch",
+      "mainClass": "lab5.App",
+      "projectName": "PCD laborator_6584bccb",
+      "vmArgs": "--module-path C:/javafx-sdk-25.0.1/lib --add-modules javafx.controls,javafx.fxml"
+    },
+    {
+      "type": "java",
       "name": "App",
       "request": "launch",
       "mainClass": "lab5.App",
