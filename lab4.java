@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.util.Random;
 
-public class lab4 {
+public class lab4 {hgftydjhk
 
     public static final int X = 2;
     public static final int Y = 3;
