@@ -13,19 +13,19 @@ import java.util.concurrent.Executors;
 
 public class App extends Application {
 
-    // ---------- LOGGER PENTRU FEREASTRA JAVAFX ----------
+    
     public static class FXLogger {
         public static TextArea area;
 
         public static void log(String msg) {
-            System.out.println(msg); // și în consolă
+            System.out.println(msg); 
 
             if (area != null)
                 Platform.runLater(() -> area.appendText(msg + "\n"));
         }
     }
 
-    // ------------------------- STORE -------------------------
+    
     static class Store {
         ArrayList<Integer> stockList = new ArrayList<>();
         int total_consumat = 0;
@@ -82,7 +82,7 @@ public class App extends Application {
         }
     }
 
-    // ------------------------- PRODUCER -------------------------
+    
     static class Producer implements Runnable {
         private Store s;
         private String name;
@@ -108,7 +108,7 @@ public class App extends Application {
         }
     }
 
-    // ------------------------- CONSUMER -------------------------
+   
     static class Consumer implements Runnable {
         private Store s;
         private String name;
@@ -133,7 +133,7 @@ public class App extends Application {
         }
     }
 
-    // ------------------------- MAIN CONSTANTE -------------------------
+    
     public static class Main {
         public static final int NR_PROD = 3;
         public static final int NR_CONS = 4;
@@ -143,7 +143,7 @@ public class App extends Application {
         public static final int CONSUM_MAXIM_TOTAL = NR_CONS * OB_MAX_PE_CONSUMATOR;
     }
 
-    // ------------------------- JAVAFX -------------------------
+    
     @Override
     public void start(Stage stage) {
         TextArea area = new TextArea();
