@@ -5,13 +5,11 @@ import javax.swing.*;
 public class Th2 extends Thread {
     private int[] mas;
     private JTextArea ta;
-    private Thread t4;
 
-    public Th2(int[] mas, JTextArea ta, Thread t4) {
+    public Th2(int[] mas, JTextArea ta) {
         super("Th2");
         this.mas = mas;
         this.ta = ta;
-        this.t4 = t4;
     }
 
     @Override
@@ -26,25 +24,31 @@ public class Th2 extends Thread {
                 if (j >= 0) {
                     sb.append(currentThread().getName() + " " + mas[i] + " * " + mas[j] + " = " + (mas[i] * mas[j]) + "\n");
                     i = j;
-                    try { Thread.sleep(1); } catch (InterruptedException ignored) {}
-                    Thread.yield();
                 }
             }
         }
 
-        while (t4.isAlive()) {
-            try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+        appendText(sb.toString());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-
-        ta.append(sb.toString());
+        afiseazaNumele();
     }
 
-    public void afiseazaNumele(JTextArea ta) {
+    private void appendText(String text) {
+        SwingUtilities.invokeLater(() -> ta.append(text));
+    }
+
+    private void afiseazaNumele() {
         String text = "Numele studentilor este: Pricop, Burlea\n";
         for (char c : text.toCharArray()) {
-            ta.append(String.valueOf(c));
-            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+            appendText(String.valueOf(c));
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ignored) {
+            }
         }
     }
-
 }
