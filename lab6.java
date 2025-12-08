@@ -126,63 +126,19 @@ public class lab6 {
         int totalCons = 0;
         volatile boolean terminat = false;
 
-        boolean produce(String name) {
+        boolean estePlin() {
             lock.lock();
             try {
-                if (depozit.size() >= CAPACITATE) {
-                    log(">>> Depozitul este PLIN! " + name + " așteaptă.\n");
-                    return false;
-                }
-
-                if (totalProds >= TOTAL_OBIECTE) {
-                    return false;
-                }
-
-                int numar = random.nextInt(51) * 2 + 100;
-                depozit.addLast(numar);
-                totalProds++;
-
-                log(name + " a PRODUS: " + numar +
-                        " | Dimensiune depozit: " + depozit.size() + "/" + CAPACITATE +
-                        " | Total produse: " + totalProds + "/" + TOTAL_OBIECTE + "\n");
-
-                if (depozit.size() == CAPACITATE) {
-                    log("*** DEPOZITUL ESTE PLIN! Consumatorii pot începe consumarea. ***\n");
-                }
-
-                return true;
+                return depozit.size() >= CAPACITATE;
             } finally {
                 lock.unlock();
             }
         }
 
-        boolean consuma(String name) {
+        boolean esteGol() {
             lock.lock();
             try {
-                if (depozit.isEmpty()) {
-                    log(">>> Depozitul este GOL! " + name + " așteaptă.\n");
-                    return false;
-                }
-
-                int numar = depozit.removeFirst();
-                totalCons++;
-
-                log(name + " a CONSUMAT: " + numar +
-                        " | Dimensiune depozit: " + depozit.size() + "/" + CAPACITATE +
-                        " | Total consumate: " + totalCons + "/" + TOTAL_OBIECTE + "\n");
-
-                if (depozit.isEmpty()) {
-                    log("*** DEPOZITUL ESTE GOL! Producătorii pot produce din nou. ***\n");
-                }
-
-                if (totalCons >= TOTAL_OBIECTE) {
-                    terminat = true;
-                    log("\n=== PROCESUL S-A TERMINAT! ===\n");
-                    log("Total produse: " + totalProds + "\n");
-                    log("Total consumate: " + totalCons + "\n");
-                }
-
-                return true;
+                return depozit.isEmpty();
             } finally {
                 lock.unlock();
             }
@@ -197,19 +153,28 @@ public class lab6 {
             }
         }
 
-        boolean depozitulEstePlin() {
+        void setTerminat() {
             lock.lock();
             try {
-                return depozit.size() == CAPACITATE;
+                terminat = true;
             } finally {
                 lock.unlock();
             }
         }
 
-        boolean depozitulEsteGol() {
+        int getTotalProduse() {
             lock.lock();
             try {
-                return depozit.isEmpty();
+                return totalProds;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        int getTotalConsumate() {
+            lock.lock();
+            try {
+                return totalCons;
             } finally {
                 lock.unlock();
             }
@@ -219,6 +184,7 @@ public class lab6 {
     static class Producator extends Thread {
         final Depozit depozit;
         final Phaser phaser;
+        final Random random = new Random();
 
         Producator(Depozit depozit, Phaser phaser, String name) {
             super(name);
@@ -233,9 +199,34 @@ public class lab6 {
                     int faza = phaser.getPhase();
 
                     if (faza % 2 == 0) {
-                        // produce until full or total target reached
-                        while (depozit.produce(getName())) {
-                            if (depozit.depozitulEstePlin()) break;
+                        boolean aProdusCeva = false;
+
+                        while (!depozit.estePlin() && depozit.getTotalProduse() < TOTAL_OBIECTE) {
+                            depozit.lock.lock();
+                            try {
+                                if (depozit.totalProds >= TOTAL_OBIECTE) {
+                                    break;
+                                }
+
+                                int numar = random.nextInt(51) * 2 + 100;
+                                depozit.depozit.addLast(numar);
+                                depozit.totalProds++;
+                                aProdusCeva = true;
+
+                                log(getName() + " a PRODUS: " + numar +
+                                        " | Dimensiune depozit: " + depozit.depozit.size() + "/" + CAPACITATE +
+                                        " | Total produse: " + depozit.totalProds + "/" + TOTAL_OBIECTE + "\n");
+
+                                if (depozit.depozit.size() == CAPACITATE) {
+                                    log("*** DEPOZITUL ESTE PLIN! Consumatorii pot începe consumarea. ***\n");
+                                }
+                            } finally {
+                                depozit.lock.unlock();
+                            }
+
+                            if (!aProdusCeva) {
+                                log(">>> Depozitul este PLIN! " + getName() + " așteaptă.\n");
+                            }
                         }
                     }
 
@@ -271,12 +262,42 @@ public class lab6 {
                     int faza = phaser.getPhase();
 
                     if (faza % 2 == 1) {
-                        // consume until empty or total target reached
-                        while (depozit.consuma(getName())) {
-                            if (depozit.depozitulEsteGol()) break;
+                        boolean aConsumatCeva = false;
+
+                        while (!depozit.esteGol()) {
+                            depozit.lock.lock();
+                            try {
+                                if (depozit.depozit.isEmpty()) {
+                                    break;
+                                }
+
+                                int numar = depozit.depozit.removeFirst();
+                                depozit.totalCons++;
+                                aConsumatCeva = true;
+
+                                log(getName() + " a CONSUMAT: " + numar +
+                                        " | Dimensiune depozit: " + depozit.depozit.size() + "/" + CAPACITATE +
+                                        " | Total consumate: " + depozit.totalCons + "/" + TOTAL_OBIECTE + "\n");
+
+                                if (depozit.depozit.isEmpty()) {
+                                    log("*** DEPOZITUL ESTE GOL! Producătorii pot produce din nou. ***\n");
+                                }
+
+                                if (depozit.totalCons >= TOTAL_OBIECTE) {
+                                    depozit.terminat = true;
+                                    log("\n=== PROCESUL S-A TERMINAT! ===\n");
+                                    log("Total produse: " + depozit.totalProds + "\n");
+                                    log("Total consumate: " + depozit.totalCons + "\n");
+                                }
+                            } finally {
+                                depozit.lock.unlock();
+                            }
+
+                            if (!aConsumatCeva) {
+                                log(">>> Depozitul este GOL! " + getName() + " așteaptă.\n");
+                            }
                         }
                     }
-
 
                     phaser.arriveAndAwaitAdvance();
 
