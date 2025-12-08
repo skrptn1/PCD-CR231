@@ -5,7 +5,9 @@ import java.util.Random;
 public class Lab4 extends JFrame {
 
     private JTextArea textArea;
+    private JButton startBtn, stopBtn;
     private Depozit depozit;
+    private boolean pornit = false;
 
     public Lab4() {
         setTitle("Producer - Consumer");
@@ -17,32 +19,59 @@ public class Lab4 extends JFrame {
         textArea.setEditable(false);
         add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-        JPanel panel = new JPanel();
-        JButton start = new JButton("Start");
-        JButton stop = new JButton("Stop");
+        JPanel jos = new JPanel();
+        startBtn = new JButton("Porneste");
+        stopBtn = new JButton("Opreste");
 
-        panel.add(start);
-        panel.add(stop);
-        add(panel, BorderLayout.SOUTH);
+        jos.add(startBtn);
+        jos.add(stopBtn);
+        add(jos, BorderLayout.SOUTH);
 
-        start.addActionListener(e -> porneste());
-        stop.addActionListener(e -> depozit.inchide());
+        startBtn.addActionListener(e -> porneste());
+        stopBtn.addActionListener(e -> opreste());
+
+        stopBtn.setEnabled(false);
     }
 
     private void porneste() {
+        if (pornit) return;
+        pornit = true;
+
+        textArea.setText("");
         depozit = new Depozit(textArea);
 
-        new Producator(depozit, 1).start();
-        new Producator(depozit, 2).start();
-        new Producator(depozit, 3).start();
-        new Producator(depozit, 4).start();
+        Producator p1 = new Producator(depozit, 1);
+        Producator p2 = new Producator(depozit, 2);
+        Producator p3 = new Producator(depozit, 3);
+        Producator p4 = new Producator(depozit, 4);
 
-        try { Thread.sleep(600);
+        Consumator c1 = new Consumator(depozit, 1);
+        Consumator c2 = new Consumator(depozit, 2);
+        Consumator c3 = new Consumator(depozit, 3);
 
-        new Consumator(depozit, 1).start();
-        new Consumator(depozit, 2).start();
-        new Consumator(depozit, 3).start();
-        } catch (InterruptedException ignored) {}
+        p1.start();
+        p2.start();
+        p3.start();
+        p4.start();
+
+        new Thread(() -> {
+            try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+            c1.start();
+            c2.start();
+            c3.start();
+        }).start();
+
+        startBtn.setEnabled(false);
+        stopBtn.setEnabled(true);
+    }
+
+    private void opreste() {
+        if (!pornit) return;
+        depozit.inchide();
+        pornit = false;
+
+        startBtn.setEnabled(true);
+        stopBtn.setEnabled(false);
     }
 
     public static void main(String[] args) {
@@ -55,26 +84,32 @@ class Depozit {
 
     private char[] buffer = new char[10];
     private int count = 0;
-    public volatile boolean inchis = false;
-    private JTextArea log;
+    volatile boolean inchis = false;
 
-    public Depozit(JTextArea log) {
-        this.log = log;
+    private boolean mesajPlinAfisat = false;
+    private JTextArea out;
+
+    Depozit(JTextArea out) {
+        this.out = out;
     }
 
-    public synchronized void produce(char c1, char c2) throws InterruptedException {
+    synchronized void produce(char c1, char c2) throws InterruptedException {
         while (count + 2 > buffer.length && !inchis) {
-            log("⚠ DEPOZIT PLIN – producatorul asteapta");
+            if (!mesajPlinAfisat) {
+                log("[DEPOZIT PLIN] Productia este oprita");
+                mesajPlinAfisat = true;
+            }
             wait();
         }
         if (inchis) return;
 
         buffer[count++] = c1;
         buffer[count++] = c2;
+        mesajPlinAfisat = false;
         notifyAll();
     }
 
-    public synchronized char consume() throws InterruptedException {
+    synchronized char consume() throws InterruptedException {
         while (count == 0 && !inchis) {
             wait();
         }
@@ -85,15 +120,14 @@ class Depozit {
         return c;
     }
 
-    public synchronized void inchide() {
+    synchronized void inchide() {
         inchis = true;
         notifyAll();
-        log("=== DEPOZIT INCHIS ===");
     }
 
-    public void log(String mesaj) {
+    void log(String msg) {
         SwingUtilities.invokeLater(() ->
-                log.append(mesaj + "\n")
+                out.append(msg + "\n")
         );
     }
 }
@@ -106,12 +140,11 @@ class Producator extends Thread {
     private Random r = new Random();
     private char[] vocale = {'A','E','I','O','U'};
 
-    public Producator(Depozit d, int id) {
+    Producator(Depozit d, int id) {
         this.depozit = d;
         this.id = id;
     }
 
-    @Override
     public void run() {
         try {
             while (!depozit.inchis) {
@@ -119,8 +152,9 @@ class Producator extends Thread {
                 char v2 = vocale[r.nextInt(vocale.length)];
 
                 depozit.produce(v1, v2);
-                depozit.log("Producator " + id + " a produs: " + v1 + " " + v2);
+                if (depozit.inchis) break;
 
+                depozit.log("Producator " + id + " a produs: " + v1 + " " + v2);
                 sleep(200);
             }
         } catch (InterruptedException ignored) {}
@@ -135,12 +169,11 @@ class Consumator extends Thread {
     private int necesita = 3;
     private static int terminati = 0;
 
-    public Consumator(Depozit d, int id) {
+    Consumator(Depozit d, int id) {
         this.depozit = d;
         this.id = id;
     }
 
-    @Override
     public void run() {
         try {
             while (necesita > 0) {
@@ -148,7 +181,6 @@ class Consumator extends Thread {
                 if (v == 0) break;
 
                 depozit.log("Consumator " + id + " a consumat: " + v);
-
                 necesita--;
                 sleep(300);
             }
