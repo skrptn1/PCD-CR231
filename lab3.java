@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class lab3 {
+public class lab3 {ygt
     public static void main(String[] args){
 
         JFrame frame = new JFrame("Interfață");
