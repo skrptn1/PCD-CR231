@@ -57,7 +57,7 @@ public class lab5_GUI extends JFrame {
             executor.execute(new Producer(i));
 
         for (int i = 1; i <= CONSUMER_COUNT; i++)
-            executor.execute(new Consumer(i));
+            executor.submit(new Consumer(i));
 
         executor.execute(() -> {
             executor.shutdown();
