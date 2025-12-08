@@ -199,19 +199,16 @@ public class lab6 {
                     int faza = phaser.getPhase();
 
                     if (faza % 2 == 0) {
-                        boolean aProdusCeva = false;
-
                         while (!depozit.estePlin() && depozit.getTotalProduse() < TOTAL_OBIECTE) {
                             depozit.lock.lock();
                             try {
-                                if (depozit.totalProds >= TOTAL_OBIECTE) {
+                                if (depozit.depozit.size() >= CAPACITATE || depozit.totalProds >= TOTAL_OBIECTE) {
                                     break;
                                 }
 
                                 int numar = random.nextInt(51) * 2 + 100;
                                 depozit.depozit.addLast(numar);
                                 depozit.totalProds++;
-                                aProdusCeva = true;
 
                                 log(getName() + " a PRODUS: " + numar +
                                         " | Dimensiune depozit: " + depozit.depozit.size() + "/" + CAPACITATE +
@@ -224,9 +221,6 @@ public class lab6 {
                                 depozit.lock.unlock();
                             }
 
-                            if (!aProdusCeva) {
-                                log(">>> Depozitul este PLIN! " + getName() + " așteaptă.\n");
-                            }
                         }
                     }
 
