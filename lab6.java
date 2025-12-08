@@ -1,5 +1,7 @@
 package seminare;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Random;
@@ -8,26 +10,87 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class seminar5 {
 
-    static final int PRODUCATORI = 2;  // X = 2
-    static final int CONSUMATORI = 3;   // Y = 3
-    static final int CAPACITATE = 8;    // D = 8
-    static final int TOTAL_OBIECTE = 40; // Z = 40
+    static final int PRODUCATORI = 2;
+    static final int CONSUMATORI = 3;
+    static final int CAPACITATE = 8;
+    static final int TOTAL_OBIECTE = 40;
+
+    static JTextArea sharedTextArea;
 
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            createAndShowGUI();
+        });
+    }
+
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame("Producător-Consumator cu Phaser");
+        frame.setSize(1000, 700);
+        frame.setLayout(new BorderLayout());
+
+        sharedTextArea = new JTextArea();
+        sharedTextArea.setEditable(false);
+        sharedTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scrollPane = new JScrollPane(sharedTextArea);
+
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout());
+
+        JButton startButton = new JButton("Start Simulare");
+        JButton pauseButton = new JButton("Pauză");
+        JButton resumeButton = new JButton("Continuă");
+
+        controlPanel.add(startButton);
+        controlPanel.add(pauseButton);
+        controlPanel.add(resumeButton);
+
+        JPanel statusPanel = new JPanel(new GridLayout(1, 4));
+        JLabel prodLabel = new JLabel("Producători: " + PRODUCATORI);
+        JLabel consLabel = new JLabel("Consumatori: " + CONSUMATORI);
+        JLabel capLabel = new JLabel("Capacitate: " + CAPACITATE);
+        JLabel totalLabel = new JLabel("Total Obiecte: " + TOTAL_OBIECTE);
+
+        statusPanel.add(prodLabel);
+        statusPanel.add(consLabel);
+        statusPanel.add(capLabel);
+        statusPanel.add(totalLabel);
+
+        frame.add(controlPanel, BorderLayout.NORTH);
+        frame.add(scrollPane, BorderLayout.CENTER);
+        frame.add(statusPanel, BorderLayout.SOUTH);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+        startButton.addActionListener(e -> startSimulation());
+        pauseButton.addActionListener(e -> log("*** Pauză apăsată ***\n"));
+        resumeButton.addActionListener(e -> log("*** Continuare apăsată ***\n"));
+
+        log("=== Aplicație Producător-Consumator cu Phaser ===\n");
+        log("Producători: " + PRODUCATORI + ", Consumatori: " + CONSUMATORI + "\n");
+        log("Capacitate depozit: " + CAPACITATE + ", Total obiecte: " + TOTAL_OBIECTE + "\n");
+        log("\nApăsați 'Start Simulare' pentru a începe.\n");
+    }
+
+    private static void startSimulation() {
+        new Thread(() -> runSimulation()).start();
+    }
+
+    private static void runSimulation() {
+        log("\n=== ÎNCEPERE SIMULARE ===\n");
+
         Depozit depozit = new Depozit();
         Phaser phaser = new Phaser(1);
 
         Thread[] producatori = new Thread[PRODUCATORI];
         Thread[] consumatori = new Thread[CONSUMATORI];
 
-        // Crearea și pornirea producătorilor
         for (int i = 0; i < PRODUCATORI; i++) {
             phaser.register();
             producatori[i] = new Producator(depozit, phaser, "Producator-" + (i + 1));
             producatori[i].start();
         }
 
-        // Crearea și pornirea consumatorilor
         for (int i = 0; i < CONSUMATORI; i++) {
             phaser.register();
             consumatori[i] = new Consumator(depozit, phaser, "Consumator-" + (i + 1));
@@ -35,44 +98,56 @@ public class seminar5 {
         }
 
         phaser.arriveAndDeregister();
+
+        try {
+            for (Thread p : producatori) p.join();
+            for (Thread c : consumatori) c.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        log("\n=== SIMULARE TERMINATĂ ===\n");
+    }
+
+    public static void log(String msg) {
+        System.out.print(msg);
+        SwingUtilities.invokeLater(() -> {
+            sharedTextArea.append(msg);
+            sharedTextArea.setCaretPosition(sharedTextArea.getDocument().getLength());
+        });
     }
 
     static class Depozit {
         final Deque<Integer> depozit = new ArrayDeque<>(CAPACITATE);
         final ReentrantLock lock = new ReentrantLock(true);
+        final Random random = new Random();
 
         int totalProds = 0;
         int totalCons = 0;
-        Random random = new Random();
         volatile boolean terminat = false;
 
-        // Producerea unui obiect (număr par)
         boolean produce(String name) {
             lock.lock();
             try {
-                // Verifică dacă depozitul este plin
                 if (depozit.size() >= CAPACITATE) {
-                    System.out.println(">>> Depozitul este PLIN! " + name + " așteaptă.");
+                    log(">>> Depozitul este PLIN! " + name + " așteaptă.\n");
                     return false;
                 }
 
-                // Verifică dacă s-au produs deja toate obiectele necesare
                 if (totalProds >= TOTAL_OBIECTE) {
                     return false;
                 }
 
-                // Generează număr par (100-200)
-                int numar = random.nextInt(51) * 2 + 100; // numere pare între 100-200
+                int numar = random.nextInt(51) * 2 + 100;
                 depozit.addLast(numar);
                 totalProds++;
 
-                System.out.println(name + " a PRODUS: " + numar +
+                log(name + " a PRODUS: " + numar +
                         " | Dimensiune depozit: " + depozit.size() + "/" + CAPACITATE +
-                        " | Total produse: " + totalProds + "/" + TOTAL_OBIECTE);
+                        " | Total produse: " + totalProds + "/" + TOTAL_OBIECTE + "\n");
 
-                // Mesaj când depozitul devine plin
                 if (depozit.size() == CAPACITATE) {
-                    System.out.println("*** DEPOZITUL ESTE PLIN! Consumatorii pot începe consumarea. ***");
+                    log("*** DEPOZITUL ESTE PLIN! Consumatorii pot începe consumarea. ***\n");
                 }
 
                 return true;
@@ -81,34 +156,30 @@ public class seminar5 {
             }
         }
 
-        // Consumarea unui obiect
         boolean consuma(String name) {
             lock.lock();
             try {
-                // Verifică dacă depozitul este gol
                 if (depozit.isEmpty()) {
-                    System.out.println(">>> Depozitul este GOL! " + name + " așteaptă.");
+                    log(">>> Depozitul este GOL! " + name + " așteaptă.\n");
                     return false;
                 }
 
                 int numar = depozit.removeFirst();
                 totalCons++;
 
-                System.out.println(name + " a CONSUMAT: " + numar +
+                log(name + " a CONSUMAT: " + numar +
                         " | Dimensiune depozit: " + depozit.size() + "/" + CAPACITATE +
-                        " | Total consumate: " + totalCons + "/" + TOTAL_OBIECTE);
+                        " | Total consumate: " + totalCons + "/" + TOTAL_OBIECTE + "\n");
 
-                // Mesaj când depozitul devine gol
                 if (depozit.isEmpty()) {
-                    System.out.println("*** DEPOZITUL ESTE GOL! Producătorii pot produce din nou. ***");
+                    log("*** DEPOZITUL ESTE GOL! Producătorii pot produce din nou. ***\n");
                 }
 
-                // Verifică dacă s-a terminat procesul
                 if (totalCons >= TOTAL_OBIECTE) {
                     terminat = true;
-                    System.out.println("\n=== PROCESUL S-A TERMINAT! ===");
-                    System.out.println("Total produse: " + totalProds);
-                    System.out.println("Total consumate: " + totalCons);
+                    log("\n=== PROCESUL S-A TERMINAT! ===\n");
+                    log("Total produse: " + totalProds + "\n");
+                    log("Total consumate: " + totalCons + "\n");
                 }
 
                 return true;
@@ -161,8 +232,6 @@ public class seminar5 {
                 while (!depozit.esteTerminat()) {
                     int faza = phaser.getPhase();
 
-                    // Producătorii lucrează în fazele pare (0, 2, 4, ...)
-                    // Producătorii produc doar când depozitul este gol
                     if (faza % 2 == 0) {
                         if (depozit.depozitulEsteGol() || depozit.depozit.size() < CAPACITATE) {
                             boolean produs = depozit.produce(getName());
@@ -179,9 +248,10 @@ public class seminar5 {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Eroare la " + getName() + ": " + e.getMessage());
+                log("Eroare la " + getName() + ": " + e.getMessage() + "\n");
             } finally {
                 phaser.arriveAndDeregister();
+                log(getName() + " s-a terminat.\n");
             }
         }
     }
@@ -202,8 +272,6 @@ public class seminar5 {
                 while (!depozit.esteTerminat()) {
                     int faza = phaser.getPhase();
 
-                    // Consumatorii lucrează în fazele impare (1, 3, 5, ...)
-                    // Consumatorii consumă doar când depozitul este plin
                     if (faza % 2 == 1) {
                         if (depozit.depozitulEstePlin() || !depozit.depozitulEsteGol()) {
                             boolean consumat = depozit.consuma(getName());
@@ -220,9 +288,10 @@ public class seminar5 {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Eroare la " + getName() + ": " + e.getMessage());
+                log("Eroare la " + getName() + ": " + e.getMessage() + "\n");
             } finally {
                 phaser.arriveAndDeregister();
+                log(getName() + " s-a terminat.\n");
             }
         }
     }
