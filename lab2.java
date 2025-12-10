@@ -1,119 +1,105 @@
 public class lab2 {
     public static void main(String[] args) {
 
-        int Tablou[] = new int[100];
+        int[] Tablou = new int[101];
 
         System.out.println("Tablou generat:");
-        for (int i = 0; i < 100; i++) {
-            Tablou[i] = (int) (Math.random() * 99);
+        for (int i = 1; i <= 100; i++) {
+            Tablou[i] = (int)(Math.random() * 99);
             System.out.print(" " + Tablou[i]);
         }
         System.out.println("\n");
 
-        // Threads
-        CounterFirst cntStart = new CounterFirst(0, 99, Tablou);
-        cntStart.setName("Start-Impare");
+        // Creăm firele
+        CounterFirst cntStart = new CounterFirst(Tablou);
+        cntStart.setName("Start-Thread");
 
-        CounterLast cntEnd = new CounterLast(99, 0, Tablou);
-        cntEnd.setName("End-Impare");
+        CounterLast cntEnd = new CounterLast(Tablou);
+        cntEnd.setName("End-Thread");
 
-        NameThread nameThread =
-                new NameThread("Cojocari Gabriel, Turcan Victor - Grupa 6");
-
+        // Pornim firele
         cntStart.start();
         cntEnd.start();
 
+        // Așteptăm terminarea lor
         try {
             cntStart.join();
             cntEnd.join();
-        } catch (Exception e) {}
+        } 
+        catch (Exception e) {}
 
+        // După terminarea ambelor fire → afișăm numele
+        NameThread nameThread = new NameThread(
+                "Cojocari Gabriel, Turcan Victor - Grupa 6"
+        );
         nameThread.start();
     }
 }
 
 
+
 // ------------------------------------------------------------------
-// THREAD 1: De la primul element → ultimul (1,3,5...)
+// THREAD 1: De la primul element → ultimul
 // ------------------------------------------------------------------
 class CounterFirst extends Thread {
-    int from, to;
     int[] Tablou;
 
-    public CounterFirst(int from, int to, int[] Tablou) {
-        this.from = from; this.to = to;
+    public CounterFirst(int[] Tablou) {
         this.Tablou = Tablou;
     }
 
     @Override
     public void run() {
+        for (int i = 1; i <= 99 - 6; i += 8) {
 
-        int sumaFinala = 0;
+            int p1 = Tablou[i] * Tablou[i + 2];
+            int p2 = Tablou[i + 4] * Tablou[i + 6];
+            int suma = p1 + p2;
 
-        // Parcurgere DOAR a pozițiilor impare
-        for (int i = 1; i + 2 <= to; i += 4) {  // i = 1, 5, 9 ...
-            int a = Tablou[i];
-            int b = Tablou[i + 2];   // perechea este (1,3), (5,7), (9,11)...
-
-            int produs = a * b;
-            sumaFinala += produs;
-
-            System.out.println(Thread.currentThread().getName() +
-                    " Produs (start) la indexurile [" + i + "," + (i + 2) + "]: "
-                    + a + " * " + b + " = " + produs);
+            System.out.println("\n" + getName() + " START");
+            System.out.println("Grupa: [" + i + ", " + (i+2) + ", " + (i+4) + ", " + (i+6) + "]");
+            System.out.println("Produs 1 = " + p1);
+            System.out.println("Produs 2 = " + p2);
+            System.out.println("Suma = " + suma);
+            System.out.println(getName() + " END\n");
         }
-
-        System.out.println(Thread.currentThread().getName() +
-                " Suma TOTALĂ (start): " + sumaFinala);
     }
 }
 
 
 
+
+
 // ------------------------------------------------------------------
-// THREAD 2: De la ultimul element → primul (99,97,95...)
+// THREAD 2: De la ultimul element → primul
 // ------------------------------------------------------------------
 class CounterLast extends Thread {
-    int from, to;
     int[] Tablou;
 
-    public CounterLast(int from, int to, int[] Tablou) {
-        this.from = from; this.to = to;
+    public CounterLast(int[] Tablou) {
         this.Tablou = Tablou;
     }
 
     @Override
     public void run() {
+        for (int i = 99; i >= 1 + 6; i -= 8) {
 
-        int sumaFinala = 0;
+            int p1 = Tablou[i] * Tablou[i - 2];
+            int p2 = Tablou[i - 4] * Tablou[i - 6];
+            int suma = p1 + p2;
 
-        // Căutăm prima poziție impară validă dinspre dreapta
-        int i = from;
-        if (i % 2 == 0) i--;
-
-        // Parcurgere DOAR a pozițiilor impare, înapoi
-        for (; i - 2 >= to; i -= 4) {   // i = 99 sau 97, apoi 95, 93...
-            int a = Tablou[i];
-            int b = Tablou[i - 2];     // pereche (99,97), (95,93)...
-
-            int produs = a * b;
-            sumaFinala += produs;
-
-            System.out.println(Thread.currentThread().getName() +
-                    " Produs (end) la indexurile [" + i + "," + (i - 2) + "]: "
-                    + a + " * " + b + " = " + produs);
+            System.out.println("\n" + getName() + " START");
+            System.out.println("Grupa: [" + i + ", " + (i-2) + ", " + (i-4) + ", " + (i-6) + "]");
+            System.out.println("Produs 1 = " + p1);
+            System.out.println("Produs 2 = " + p2);
+            System.out.println("Suma = " + suma);
+            System.out.println(getName() + " END\n");
         }
-
-        System.out.println(Thread.currentThread().getName() +
-                " Suma TOTALĂ (end): " + sumaFinala);
     }
 }
 
 
 
-// ------------------------------------------------------------------
-// THREAD afișare nume
-// ------------------------------------------------------------------
 class NameThread extends Thread {
     String name;
 
@@ -125,7 +111,9 @@ class NameThread extends Thread {
     public void run() {
         for (int i = 0; i < name.length(); i++) {
             System.out.print(name.charAt(i));
-            try { Thread.sleep(100); } catch (InterruptedException e) {}
+            try { Thread.sleep(100); } 
+            catch (InterruptedException e) {}
         }
+        System.out.println();
     }
 }
