@@ -1,7 +1,7 @@
 public class lab2 {
     public static void main(String[] args) {
 
-        int Tablou[] = new int[101];
+        int Tablou[] = new int[100];
 
         System.out.println("Tablou generat:");
         for (int i = 0; i < 100; i++) {
@@ -11,10 +11,10 @@ public class lab2 {
         System.out.println("\n");
 
         // Threads
-        CounterFirst cntStart = new CounterFirst(0, 99, 1, Tablou);
+        CounterFirst cntStart = new CounterFirst(0, 99, Tablou);
         cntStart.setName("Start-Impare");
 
-        CounterLast cntEnd = new CounterLast(99, 0, 1, Tablou);
+        CounterLast cntEnd = new CounterLast(99, 0, Tablou);
         cntEnd.setName("End-Impare");
 
         NameThread nameThread =
@@ -34,39 +34,33 @@ public class lab2 {
 
 
 // ------------------------------------------------------------------
-// THREAD 1: De la primul element → ultimul
+// THREAD 1: De la primul element → ultimul (1,3,5...)
 // ------------------------------------------------------------------
 class CounterFirst extends Thread {
-    int from, to, step;
+    int from, to;
     int[] Tablou;
 
-    public CounterFirst(int from, int to, int step, int[] Tablou) {
+    public CounterFirst(int from, int to, int[] Tablou) {
         this.from = from; this.to = to;
-        this.step = step; this.Tablou = Tablou;
+        this.Tablou = Tablou;
     }
 
     @Override
     public void run() {
 
         int sumaFinala = 0;
-        int counter = 0;
-        int produs = 1;
 
-        for (int i = from; i <= to; i += step) {
+        // Parcurgere DOAR a pozițiilor impare
+        for (int i = 1; i + 2 <= to; i += 4) {  // i = 1, 5, 9 ...
+            int a = Tablou[i];
+            int b = Tablou[i + 2];   // perechea este (1,3), (5,7), (9,11)...
 
-            if (i % 2 == 1) { // doar poziții impare
+            int produs = a * b;
+            sumaFinala += produs;
 
-                produs *= Tablou[i];
-                counter++;
-
-                if (counter == 2) {
-                    System.out.println(Thread.currentThread().getName() +
-                            " Produs (start): " + produs);
-                    sumaFinala += produs;
-                    produs = 1;
-                    counter = 0;
-                }
-            }
+            System.out.println(Thread.currentThread().getName() +
+                    " Produs (start) la indexurile [" + i + "," + (i + 2) + "]: "
+                    + a + " * " + b + " = " + produs);
         }
 
         System.out.println(Thread.currentThread().getName() +
@@ -75,46 +69,46 @@ class CounterFirst extends Thread {
 }
 
 
+
 // ------------------------------------------------------------------
-// THREAD 2: De la ultimul element → primul
+// THREAD 2: De la ultimul element → primul (99,97,95...)
 // ------------------------------------------------------------------
 class CounterLast extends Thread {
-    int from, to, step;
+    int from, to;
     int[] Tablou;
 
-    public CounterLast(int from, int to, int step, int[] Tablou) {
+    public CounterLast(int from, int to, int[] Tablou) {
         this.from = from; this.to = to;
-        this.step = step; this.Tablou = Tablou;
+        this.Tablou = Tablou;
     }
 
     @Override
     public void run() {
 
         int sumaFinala = 0;
-        int counter = 0;
-        int produs = 1;
 
-        for (int i = from; i >= to; i -= step) {
+        // Căutăm prima poziție impară validă dinspre dreapta
+        int i = from;
+        if (i % 2 == 0) i--;
 
-            if (i % 2 == 1) { // doar poziții impare
+        // Parcurgere DOAR a pozițiilor impare, înapoi
+        for (; i - 2 >= to; i -= 4) {   // i = 99 sau 97, apoi 95, 93...
+            int a = Tablou[i];
+            int b = Tablou[i - 2];     // pereche (99,97), (95,93)...
 
-                produs *= Tablou[i];
-                counter++;
+            int produs = a * b;
+            sumaFinala += produs;
 
-                if (counter == 2) {
-                    System.out.println(Thread.currentThread().getName() +
-                            " Produs (end): " + produs);
-                    sumaFinala += produs;
-                    produs = 1;
-                    counter = 0;
-                }
-            }
+            System.out.println(Thread.currentThread().getName() +
+                    " Produs (end) la indexurile [" + i + "," + (i - 2) + "]: "
+                    + a + " * " + b + " = " + produs);
         }
 
         System.out.println(Thread.currentThread().getName() +
                 " Suma TOTALĂ (end): " + sumaFinala);
     }
 }
+
 
 
 // ------------------------------------------------------------------
