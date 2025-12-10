@@ -1,18 +1,19 @@
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Lab4_ProducatorConsumator {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // Datele din enunț:
-        final int X = 2;   // număr producători
-        final int Y = 5;   // număr consumatori
+        // Datele din enunt:
+        final int X = 2;   // producatori
+        final int Y = 5;   // consumatori
         final int Z = 3;   // obiecte pentru fiecare consumator
         final int D = 12;  // capacitatea depozitului
 
         Store store = new Store(D);
 
-        // Creăm producătorii (X = 2)
+        // Producatori (X = 2)
         Producer p1 = new Producer(store);
         p1.setDaemon(true);
         p1.setName("Producator #1");
@@ -21,21 +22,12 @@ public class Lab4_ProducatorConsumator {
         p2.setDaemon(true);
         p2.setName("Producator #2");
 
-        // Creăm consumatorii (Y = 5), fiecare trebuie să ia Z = 3 obiecte
-        Consumer c1 = new Consumer(store, Z);
-        c1.setName("Consumator #1");
-
-        Consumer c2 = new Consumer(store, Z);
-        c2.setName("Consumator #2");
-
-        Consumer c3 = new Consumer(store, Z);
-        c3.setName("Consumator #3");
-
-        Consumer c4 = new Consumer(store, Z);
-        c4.setName("Consumator #4");
-
-        Consumer c5 = new Consumer(store, Z);
-        c5.setName("Consumator #5");
+        // Consumatori (Y = 5), fiecare ia Z obiecte (cate 1 pe operatie)
+        Consumer c1 = new Consumer(store, Z); c1.setName("Consumator #1");
+        Consumer c2 = new Consumer(store, Z); c2.setName("Consumator #2");
+        Consumer c3 = new Consumer(store, Z); c3.setName("Consumator #3");
+        Consumer c4 = new Consumer(store, Z); c4.setName("Consumator #4");
+        Consumer c5 = new Consumer(store, Z); c5.setName("Consumator #5");
 
         // Pornim firele
         p1.start();
@@ -47,99 +39,86 @@ public class Lab4_ProducatorConsumator {
         c4.start();
         c5.start();
 
-        // Așteptăm până termină toți consumatorii
-        while (c1.isAlive() || c2.isAlive() || c3.isAlive() || c4.isAlive() || c5.isAlive()) {
-            // buclă de așteptare
-        }
+        // Asteptam pana termina toti consumatorii (fara busy-wait)
+        c1.join();
+        c2.join();
+        c3.join();
+        c4.join();
+        c5.join();
 
-        System.out.println("\n==============================");
-        System.out.println("Toți consumatorii au fost îndestulați cu " + Z + " obiecte.");
-        System.out.println("Programul se încheie.");
+        Log.println("\n==============================");
+        Log.println("Toti consumatorii au fost indestulati cu " + Z + " obiecte.");
+        Log.println("Programul se incheie.");
     }
 }
 
+// Logger sincronizat (nu se amesteca liniile intre thread-uri)
+class Log {
+    private static final Object LOCK = new Object();
 
-// Clasa Store – depozitul partajat
+    public static void println(String msg) {
+        synchronized (LOCK) {
+            System.out.println(msg);
+        }
+    }
+}
+
+// Depozitul partajat
 class Store {
 
     private final ArrayList<Integer> stockList = new ArrayList<>();
-    private final int capacity;  // D – capacitatea depozitului
+    private final int capacity;
 
     public Store(int capacity) {
         this.capacity = capacity;
     }
 
-    // Consumatorul ia un obiect din depozit
+    // Consumatorul ia 1 obiect
     public synchronized int get(String consumerName) {
-        // dacă depozitul e gol, consumatorul așteaptă
-        while (stockList.size() < 1) {
-            System.out.println(consumerName + ": depozitul este gol, aștept...");
+        while (stockList.isEmpty()) {
+            Log.println(consumerName + ": depozitul este gol, astept...");
             try {
                 wait();
             } catch (InterruptedException e) {
-                // ignorăm
+                Thread.currentThread().interrupt();
+                return -1;
             }
         }
 
-        // luăm ultimul element
-        int value = stockList.get(stockList.size() - 1);
-        stockList.remove(stockList.size() - 1);
+        int value = stockList.remove(stockList.size() - 1);
 
-        System.out.println(consumerName + " a luat din depozit: " + value);
+        Log.println(consumerName + " a luat din depozit: " + value + " | depozit=" + snapshot());
 
-        if (stockList.size() > 0) {
-            System.out.print("Depozitul are acum " + stockList.size() + " obiecte -> ");
-            for (int v : stockList) {
-                System.out.print(v + " ");
-            }
-            System.out.println();
-        } else {
-            System.out.println("Depozitul este gol după consum.");
-        }
-
-        // anunțăm producătorii/ceilalți consumatori
         notifyAll();
-
         return value;
     }
 
-    // Producătorul pune un obiect în depozit
-    public synchronized void put(String producerName, int value) {
-        // dacă depozitul e plin, producătorul așteaptă
-        while (stockList.size() >= capacity) {
-            System.out.println(producerName + ": depozitul este plin (" + capacity + "), aștept...");
+    // Producatorul pune 2 obiecte o data (asteapta pana are loc pentru 2)
+    public synchronized void putTwo(String producerName, int v1, int v2) {
+        while (stockList.size() > capacity - 2) { // NU e loc pentru 2
+            Log.println(producerName + ": nu e loc pentru 2 obiecte (capacitate=" + capacity + "), astept... | depozit=" + snapshot());
             try {
                 wait();
             } catch (InterruptedException e) {
-                // ignorăm
+                Thread.currentThread().interrupt();
+                return;
             }
         }
 
-        // adăugăm obiectul
-        stockList.add(value);
-        System.out.println(producerName + " a pus în depozit numărul: " + value);
+        stockList.add(v1);
+        stockList.add(v2);
 
-        if (stockList.size() == capacity) {
-            System.out.print("Depozitul este plin! Conține " + stockList.size() + " obiecte -> ");
-            for (int v : stockList) {
-                System.out.print(v + " ");
-            }
-            System.out.println();
-        } else {
-            System.out.print("Depozitul are acum " + stockList.size() + " obiecte -> ");
-            for (int v : stockList) {
-                System.out.print(v + " ");
-            }
-            System.out.println();
-        }
+        Log.println(producerName + " a pus in depozit 2 obiecte: [" + v1 + ", " + v2 + "] | depozit=" + snapshot());
 
-        // anunțăm consumatorii/ceilalți producători
         notifyAll();
+    }
+
+    private String snapshot() {
+        return stockList.size() + "/" + capacity + " " + stockList;
     }
 }
 
-
-// Producător – generează NUMERE PARE și le pune în depozit
+// Producator – genereaza NUMERE PARE si le pune in depozit cate 2
 class Producer extends Thread {
 
     private final Store store;
@@ -150,32 +129,30 @@ class Producer extends Thread {
 
     @Override
     public void run() {
-        // vector de numere pare (tipul obiectelor)
         int[] pare = new int[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20,
                                22, 24, 26, 28, 30, 32, 34, 36, 38, 40};
 
         while (true) {
-            int idx = (int) (Math.random() * pare.length);
-            int value = pare[idx];
+            int v1 = pare[ThreadLocalRandom.current().nextInt(pare.length)];
+            int v2 = pare[ThreadLocalRandom.current().nextInt(pare.length)];
 
-            store.put(getName(), value);
+            store.putTwo(getName(), v1, v2);
 
             try {
-                // mică pauză, ca să se vadă mai clar alternanța
-                Thread.sleep(100);
+                Thread.sleep(120);
             } catch (InterruptedException e) {
-                // ignorăm
+                Thread.currentThread().interrupt();
+                return;
             }
         }
     }
 }
 
-
-// Consumător – ia Z obiecte și apoi se oprește
+// Consumator – ia Z obiecte (cate 1 pe operatie) si apoi se opreste
 class Consumer extends Thread {
 
     private final Store store;
-    private final int need;   // Z = câte obiecte trebuie să consume
+    private final int need;
 
     public Consumer(Store store, int need) {
         this.store = store;
@@ -188,10 +165,16 @@ class Consumer extends Thread {
 
         for (int i = 0; i < need; i++) {
             int value = store.get(getName());
+            if (value == -1) return; // intrerupt
             taken++;
-            // aici ai putea stoca valorile consumate, dacă e nevoie
+            try {
+                Thread.sleep(80);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
         }
 
-        System.out.println(getName() + " a luat " + taken + " obiecte. Thread-ul a finalizat.");
+        Log.println(getName() + " a luat " + taken + " obiecte. Thread-ul a finalizat.");
     }
 }
