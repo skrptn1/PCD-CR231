@@ -1,4 +1,4 @@
-package laborator2;
+
 public class mihalachi {
     public static void main(String[] args) throws InterruptedException {
         ThreadGroup systemGroup = Thread.currentThread().getThreadGroup();

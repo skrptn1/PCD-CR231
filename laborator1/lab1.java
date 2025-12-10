@@ -1,4 +1,4 @@
-package laborator1;
+
 import java.util.*;
 
 class MihalachiThread extends Thread {

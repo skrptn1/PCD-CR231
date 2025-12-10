@@ -1,4 +1,4 @@
-package laborator2;
+
 public class malai {
     public static void main(String[] args) {
         ThreadGroup systemGroup = Thread.currentThread().getThreadGroup();
