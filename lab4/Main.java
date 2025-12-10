@@ -146,6 +146,7 @@ class Producator extends Thread {
             } catch (InterruptedException e) {
                 break;
             }
+
         }
 
         gui.log(getName() + "s-a oprit.");
