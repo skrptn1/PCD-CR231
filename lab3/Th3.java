@@ -1,5 +1,4 @@
 package lab3;
-
 import javax.swing.*;
 
 public class Th3 extends Thread {
