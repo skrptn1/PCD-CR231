@@ -19,12 +19,17 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger; // NOU: Pentru contor thread-safe
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Victor extends Application {
 
     private static final int NUM_PHILOSOPHERS = 5;
+    private static final int MAX_MEALS = 15; // NOU: Limita de mese
+
+    private final AtomicInteger mealsCompleted = new AtomicInteger(0);
+
     private Fork[] forks;
     private Philosopher[] philosophers;
 
@@ -121,7 +126,7 @@ public class Victor extends Application {
                 circle.setFill(newState.color);
 
                 if (newState != State.THINKING || scheduler != null) {
-                    log("P" + id + " este în starea: " + newState.text + "."); // Utilizare "P"
+                    log("P" + id + " este în starea: " + newState.text + ".");
                 }
             });
         }
@@ -155,6 +160,16 @@ public class Victor extends Application {
                 checkPause();
                 Thread.sleep(100);
             }
+
+            int currentMeals = mealsCompleted.incrementAndGet();
+            log("P" + id + " a terminat masa (" + currentMeals + "/" + MAX_MEALS + ").");
+
+            if (currentMeals >= MAX_MEALS) {
+                log("--- Limita de " + MAX_MEALS + " mese atinsă. Oprire simulare în curs... ---");
+                // Oprim scheduler-ul din thread-ul curent (P4/P3 etc.)
+                // Folosim Platform.runLater pentru a executa oprirea din UI thread
+                Platform.runLater(() -> stopSimulation());
+            }
         }
 
         private void acquireForks() throws InterruptedException {
@@ -165,7 +180,7 @@ public class Victor extends Application {
             Fork firstFork = (id == NUM_PHILOSOPHERS - 1) ? rightFork : leftFork;
             Fork secondFork = (id == NUM_PHILOSOPHERS - 1) ? leftFork : rightFork;
 
-            while (true) {
+            while (mealsCompleted.get() < MAX_MEALS) {
                 checkPause();
 
                 if (firstFork.tryPickUp()) {
@@ -174,7 +189,7 @@ public class Victor extends Application {
                         firstFork.updateUIIcon(true);
                         secondFork.updateUIIcon(true);
                         log("P" + id + " a dobândit furcile " + firstFork.id + " și " + secondFork.id
-                                + ". Gata să MĂNÂNCE!"); // Utilizare "P"
+                                + ". Gata să MĂNÂNCE!");
                         return;
                     } else {
                         // Fails to get second, must put down the first.
@@ -184,6 +199,7 @@ public class Victor extends Application {
 
                 Thread.sleep(random.nextInt(500) + 100);
             }
+            throw new InterruptedException("Simularea s-a oprit din cauza limitei de mese.");
         }
 
         private void releaseForks() {
@@ -194,7 +210,8 @@ public class Victor extends Application {
         @Override
         public void run() {
             try {
-                while (!Thread.currentThread().isInterrupted()) {
+                // MODIFICAT: Bucla rulează cât timp limita nu a fost atinsă
+                while (mealsCompleted.get() < MAX_MEALS && !Thread.currentThread().isInterrupted()) {
                     checkPause();
                     think();
 
@@ -208,8 +225,12 @@ public class Victor extends Application {
                     releaseForks();
                 }
             } catch (InterruptedException e) {
+                // S-a oprit din cauza întreruperii (oprire grațioasă)
                 setState(State.THINKING);
                 Thread.currentThread().interrupt();
+            } finally {
+                // Ne asigurăm că eliberăm furcile chiar dacă a fost întrerupt brusc
+                releaseForks();
             }
         }
     }
@@ -255,7 +276,7 @@ public class Victor extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // 1. Initialize data structures
+        // ... (Inițializarea structurilor de date rămâne la fel)
         Circle[] forkIcons = new Circle[NUM_PHILOSOPHERS];
         forks = new Fork[NUM_PHILOSOPHERS];
         for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
@@ -357,7 +378,7 @@ public class Victor extends Application {
             philosopherCircles[i].setStrokeWidth(1.5);
 
             // Philosopher ID Label
-            Label phId = new Label("P" + i); // Utilizare "P"
+            Label phId = new Label("P" + i);
             phId.setLayoutX(phX - 8);
             phId.setLayoutY(phY - 10);
             phId.setFont(Font.font("Arial", FontWeight.BOLD, 12));
@@ -419,17 +440,19 @@ public class Victor extends Application {
             scheduler.execute(p);
         }
         log("--- Simulare Pornită cu " + NUM_PHILOSOPHERS + " filosofi și furci. ---");
-        log("Strategia de prevenire a blocajului activă (P" + (NUM_PHILOSOPHERS - 1) + " sparge simetria)."); // Utilizare
-                                                                                                              // "P"
+        log("Strategia de prevenire a blocajului activă (P" + (NUM_PHILOSOPHERS - 1) + " sparge simetria).");
+        log("Simularea se va opri automat după " + MAX_MEALS + " mese completate."); // NOU: Mesaj pentru limită
     }
 
     private void stopSimulation() {
         if (scheduler != null) {
             scheduler.shutdownNow();
-            log("--- Simulare Oprită... ---");
+            log("--- Simulare Oprită. Total mese: " + mealsCompleted.get() + " ---");
             try {
                 if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
                     log("Avertisment: Unele fire de execuție nu s-au oprit grațios.");
+                } else {
+                    log("Oprire grațioasă reușită.");
                 }
             } catch (InterruptedException e) {
                 log("Eroare: Procesul de oprire a fost întrerupt.");
