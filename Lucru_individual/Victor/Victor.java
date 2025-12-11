@@ -39,11 +39,11 @@ public class Victor extends Application {
     private ScheduledExecutorService scheduler;
 
     // Modern Color Palette
-    private static final Color THINKING_COLOR = Color.web("#4A90E2"); // Blue
-    private static final Color HUNGRY_COLOR = Color.web("#F5A623"); // Orange
-    private static final Color EATING_COLOR = Color.web("#7ED321"); // Green
-    private static final Color FREE_FORK_COLOR = Color.web("#C3C3C3"); // Light Gray
-    private static final Color BUSY_FORK_COLOR = Color.web("#E06666"); // Reddish
+    private static final Color THINKING_COLOR = Color.web("#4A90E2");
+    private static final Color HUNGRY_COLOR = Color.web("#F5A623");
+    private static final Color EATING_COLOR = Color.web("#7ED321");
+    private static final Color FREE_FORK_COLOR = Color.web("#C3C3C3");
+    private static final Color BUSY_FORK_COLOR = Color.web("#E06666");
 
     /**
      * Represents a single resource (fork) that philosophers must acquire.
