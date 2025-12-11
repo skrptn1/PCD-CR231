@@ -1,15 +1,12 @@
-package Lucru_individual.Mihai;
-
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.*;
 
 public class SleepingBarber {
 
-    // ================================
-    //          BARBER SHOP
-    // ================================
+   
     static class BarberShop {
 
         private final int numarScaune;
@@ -20,6 +17,8 @@ public class SleepingBarber {
         private final Object lock = new Object();
 
         private BarberShopGUI gui;
+
+        public volatile boolean running = false;
 
         public BarberShop(int scaune, int nrFrizeri) {
             this.numarScaune = scaune;
@@ -32,10 +31,13 @@ public class SleepingBarber {
 
         public boolean vineClient(int id) {
             synchronized (lock) {
+                if (!running) return false;
+
                 if (clientiAsteapta == numarScaune) {
                     gui.log("Clientul " + id + " a plecat – sala plină!");
                     return false;
                 }
+
                 clientiAsteapta++;
                 gui.updateWaiting(clientiAsteapta);
                 gui.log("Clientul " + id + " a intrat în sala de așteptare.");
@@ -50,6 +52,7 @@ public class SleepingBarber {
             frizeri.acquire();
 
             synchronized (lock) {
+                if (!running) return;
                 clientiAsteapta--;
                 gui.updateWaiting(clientiAsteapta);
                 gui.frizerStart(idFrizer);
@@ -65,9 +68,7 @@ public class SleepingBarber {
         }
     }
 
-    // ================================
-    //             BARBER
-    // ================================
+   
     static class Barber extends Thread {
 
         private final BarberShop shop;
@@ -82,7 +83,10 @@ public class SleepingBarber {
         public void run() {
             while (true) {
                 try {
-                    shop.tundeClient(id);
+                    if (shop.running)
+                        shop.tundeClient(id);
+                    else
+                        Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -90,9 +94,7 @@ public class SleepingBarber {
         }
     }
 
-    // ================================
-    //             CLIENT
-    // ================================
+  
     static class Client extends Thread {
 
         private static final AtomicInteger counter = new AtomicInteger(1);
@@ -110,38 +112,70 @@ public class SleepingBarber {
         }
     }
 
-    // ================================
-    //            GUI
-    // ================================
+    
     static class BarberShopGUI extends JFrame {
 
         private JLabel[] frizeriStatus = new JLabel[2];
         private JLabel waitingLabel;
         private JTextArea logArea;
 
-        public BarberShopGUI() {
-            setTitle("Sleeping Barber – 2 Frizeri, 4 Locuri, Max 8 Clienți");
-            setSize(500, 400);
+        private ImageIcon iconFree = new ImageIcon("free.png");
+        private ImageIcon iconBusy = new ImageIcon("busy.png");
+
+        private JButton startBtn;
+        private JButton stopBtn;
+
+        public BarberShopGUI(BarberShop shop) {
+
+            setTitle("Sleeping Barber – Start/Stop + Iconițe");
+            setSize(550, 450);
             setDefaultCloseOperation(EXIT_ON_CLOSE);
             setLayout(new BorderLayout());
 
-            JPanel top = new JPanel();
-            top.setLayout(new GridLayout(1, 2));
+            
+            JPanel top = new JPanel(new GridLayout(1, 2));
 
-            frizeriStatus[0] = new JLabel("Frizer 1: liber", SwingConstants.CENTER);
-            frizeriStatus[1] = new JLabel("Frizer 2: liber", SwingConstants.CENTER);
+            frizeriStatus[0] = new JLabel("Frizer 1: liber", iconFree, SwingConstants.CENTER);
+            frizeriStatus[1] = new JLabel("Frizer 2: liber", iconFree, SwingConstants.CENTER);
+
+            frizeriStatus[0].setHorizontalTextPosition(SwingConstants.CENTER);
+            frizeriStatus[0].setVerticalTextPosition(SwingConstants.BOTTOM);
+
+            frizeriStatus[1].setHorizontalTextPosition(SwingConstants.CENTER);
+            frizeriStatus[1].setVerticalTextPosition(SwingConstants.BOTTOM);
 
             top.add(frizeriStatus[0]);
             top.add(frizeriStatus[1]);
 
+            
             waitingLabel = new JLabel("Clienți în așteptare: 0", SwingConstants.CENTER);
 
+           
             logArea = new JTextArea();
             logArea.setEditable(false);
+
+            
+            JPanel controls = new JPanel();
+            startBtn = new JButton("START");
+            stopBtn = new JButton("STOP");
+
+            controls.add(startBtn);
+            controls.add(stopBtn);
+
+            startBtn.addActionListener((ActionEvent e) -> {
+                shop.running = true;
+                log("Simularea a pornit");
+            });
+
+            stopBtn.addActionListener((ActionEvent e) -> {
+                shop.running = false;
+                log("Simularea a fost oprită");
+            });
 
             add(top, BorderLayout.NORTH);
             add(waitingLabel, BorderLayout.CENTER);
             add(new JScrollPane(logArea), BorderLayout.SOUTH);
+            add(controls, BorderLayout.WEST);
         }
 
         public void updateWaiting(int nr) {
@@ -150,12 +184,12 @@ public class SleepingBarber {
 
         public void frizerStart(int id) {
             frizeriStatus[id - 1].setText("Frizer " + id + ": tunde...");
-            frizeriStatus[id - 1].setForeground(Color.RED);
+            frizeriStatus[id - 1].setIcon(iconBusy);
         }
 
         public void frizerEnd(int id) {
             frizeriStatus[id - 1].setText("Frizer " + id + ": liber");
-            frizeriStatus[id - 1].setForeground(Color.GREEN);
+            frizeriStatus[id - 1].setIcon(iconFree);
         }
 
         public void log(String msg) {
@@ -163,29 +197,29 @@ public class SleepingBarber {
         }
     }
 
-    // ================================
-    //            MAIN
-    // ================================
+    
     public static void main(String[] args) throws InterruptedException {
 
-        BarberShop shop = new BarberShop(4, 2); // 4 locuri, 2 frizeri
+        BarberShop shop = new BarberShop(4, 2);
 
-        BarberShopGUI gui = new BarberShopGUI();
+        BarberShopGUI gui = new BarberShopGUI(shop);
         shop.setGUI(gui);
         gui.setVisible(true);
 
         new Barber(1, shop).start();
         new Barber(2, shop).start();
 
-        int maxClienti = 8;
+        int maxClienti = 20;
         int creati = 0;
 
-        while (creati < maxClienti) {
-            new Client(shop).start();
-            creati++;
-            Thread.sleep((int)(Math.random() * 1500));
+        while (true) {
+            if (shop.running && creati < maxClienti) {
+                new Client(shop).start();
+                creati++;
+                Thread.sleep((int)(Math.random() * 1200));
+            } else {
+                Thread.sleep(200);
+            }
         }
-
-        gui.log("S-au generat toți cei 8 clienți.");
     }
 }
