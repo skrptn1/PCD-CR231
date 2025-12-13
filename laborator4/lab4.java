@@ -95,24 +95,30 @@ class Depozit {
 }
 
 
-    public synchronized char consuma() {
+    public synchronized char consuma() {   // monitorul e un lacat invizibil pe obiect care permite doar unui thread să execute metoda synchronized la un moment dat, iar ceilalți așteaptă până se eliberează.
+//firul de executie apeleaza metoda consuma
+    while (count == 0) {           
+        if (consumatoriSatisfacuti == totalConsumatori)
+            return '\0';              
 
-            while (count == 0) {
-         if (consumatoriSatisfacuti == totalConsumatori)
-        return '\0';
         if (log != null)
-             SwingUtilities.invokeLater(() -> log.append("Depozit gol\n"));
-        try { wait(); } catch (InterruptedException ignored) {}
+            SwingUtilities.invokeLater(() -> log.append("depozit gol\n"));
+                                       
+
+        try {
+            wait();                     // consumatorul asteapta pana producatorul pune ceva
+        } catch (InterruptedException ignored) {}
     }
 
+    char obj = buffer[getIndex];        // luam elementul curent din buffer
+    getIndex = (getIndex + 1) % buffer.length;
+                                        // trecem la urmatoarea pozitie circulara
+    count--;                            // scadem numarul de elemente din depozit
 
-        char obj = buffer[getIndex];
-        getIndex = (getIndex + 1) % buffer.length;
-        count--;
+    notifyAll();                        // anuntam celelalte threaduri ca s-a eliberat o pozitie
+    return obj;                         // returnam obiectul consumat
+}
 
-        notifyAll();
-        return obj;
-    }
 
     public synchronized void consumatorSatisfacut() {
         consumatoriSatisfacuti++;
