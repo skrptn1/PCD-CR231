@@ -24,14 +24,12 @@ public class lab5 {
 
         ExecutorService executor = Executors.newFixedThreadPool(6); 
 
-        // Adăugăm producători
         for (int i = 1; i <= 3; i++) {
-            executor.submit(new Producator(depozit, i, logArea));
+            executor.execute(new Producator(depozit, i, logArea));
         }
 
-        // Adăugăm consumatori
         for (int i = 1; i <= 3; i++) {
-            executor.submit(new Consumator(depozit, i, logArea));
+            executor.execute(new Consumator(depozit, i, logArea));
         }
 
         executor.shutdown();
