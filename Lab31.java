@@ -1,7 +1,6 @@
 import javax.swing.*;
 
 public class Lab31 {
-
     private static final String SURNAME    = "Untila,Mocreac";
     private static final String GROUP      = "CR-231";
     private static final String FIRST_NAME = "Maxim,Cristian";
