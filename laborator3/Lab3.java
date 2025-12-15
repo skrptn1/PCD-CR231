@@ -1,268 +1,138 @@
+import java.util.Random;
 
 public class Lab3 {
+
+    static final int ARRAY_SIZE = 100;
+    static int[] b = new int[ARRAY_SIZE];
+    static int[] oddPositions;
+    static int oddCount = 0;
+
     
-    static final int[] SIR = {3, 8, 5, 12, 7, 4, 9, 10, 11, 13, 15};
+    static final String INFO_NUME = "Mihalachi , Malai";
+    static final String INFO_PRENUME = "Cristian , Veaceslav";
+    static final String INFO_DISCIPLINA = "Programarea Concurenta si Distribuita";
+    static final String INFO_GRUPA = " CR-231";
     
-    public static void main(String[] args) {
-       
-        Th1 th1 = new Th1("Th1");
-        Th2 th2 = new Th2("Th2", th1); 
-        Th3 th3 = new Th3("Th3");
-        Th4 th4 = new Th4("Th4", th3); 
 
-   
-        th1.start();
-        th2.start();
-
-  
-        th3.start();
-        th4.start();
-
-      
-        try {
-            th1.join();
-            th2.join();
-            th3.join();
-            th4.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("\nToate firele s-au terminat. Program încheiat.");
-    }
-}
-
-
-class Th1 extends Thread {
-    private static final int[] SIR = Lab3.SIR;
-
-    public Th1(String name) {
-        super(name);
-    }
-
-    @Override
-    public void run() {
-        System.out.println(getName() + " începe Sarcina 1 (suma pozițiilor impare de la început).");
-
-        // Găsim pozițiile numerelor impare de la început
-        java.util.ArrayList<Integer> oddPositions = new java.util.ArrayList<>();
-        for (int i = 0; i < SIR.length; i++) {
-            if (SIR[i] % 2 != 0) {
-                oddPositions.add(i);
-            }
-        }
-
-        // Sumăm pozițiile două câte două
-        int sumaTotala = 0;
-        for (int i = 0; i + 1 < oddPositions.size(); i += 2) {
-            sumaTotala += oddPositions.get(i) + oddPositions.get(i + 1);
-        }
-
-        System.out.println(getName() + " - Rezultat Sarcina 1: " + sumaTotala);
-
-        // Așteptăm finalizarea tuturor sarcinilor
-        try {
-            Thread.sleep(100); // Sincronizare simplă
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return;
-        }
-
-        // Așteptăm Th2 să afișeze numele
-        delayedPrintln("Prenume: Veaceslav", 100);
-    }
-
-    private void delayedPrintln(String s, int delayMs) {
-        for (char c : s.toCharArray()) {
+    private static void printWithDelay(String text, String threadName) {
+        System.out.print(threadName + " afiseaza: ");
+        for (char c : text.toCharArray()) {
             System.out.print(c);
-            try {
-                Thread.sleep(delayMs);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
+            try { Thread.sleep(100); }
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
         System.out.println();
     }
-}
 
+    static class Th1 extends Thread {
+        public Th1() { setName("Th1"); }
 
-class Th2 extends Thread {
-    private final int from = 123;
-    private final int to = 890;
-    private final Thread th1Ref;
+        @Override
+        public void run() {
+            System.out.println(getName() + " – Sarcina 1: sume poziții impare (de la început)");
+            long total = 0;
 
-    public Th2(String name, Thread th1Ref) {
-        super(name);
-        this.th1Ref = th1Ref;
-    }
-
-    @Override
-    public void run() {
-        System.out.println(getName() + " începe Sarcina 2 (de la " + to + " la " + from + " invers).");
-
-        java.util.ArrayList<Integer> oddPositions = new java.util.ArrayList<>();
-        int pos = 0; 
-        for (int i = to; i >= from; i--) {
-            pos++;
-            if ((i % 2) != 0) {
-                oddPositions.add(pos);
+            for (int i = 0; i < oddCount; i += 2) {
+                if (i + 1 < oddCount) {
+                    int sum = oddPositions[i] + oddPositions[i + 1];
+                    total += sum;
+                    System.out.print(sum + " ");
+                }
             }
-         
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
+            System.out.println("\n" + getName() + " total = " + total);
 
-        java.util.List<Integer> pairSums = new java.util.ArrayList<>();
-        for (int i = 0; i + 1 < oddPositions.size(); i += 2) {
-            pairSums.add(oddPositions.get(i) + oddPositions.get(i + 1));
-        }
-
-        System.out.println(getName() + " - pozițiile impare (în ordinea inversă), count = " + oddPositions.size());
-        System.out.println(getName() + " - sume pe perechi (count perechi = " + pairSums.size() + ").");
-
-        
-        try {
-            if (th1Ref != null) {
-                th1Ref.join(); 
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return;
-        }
-
-        
-        delayedPrintln("Nume: Malai", 100);
-    }
-
-    private void delayedPrintln(String s, int delayMs) {
-        for (char c : s.toCharArray()) {
-            System.out.print(c);
-            try {
-                Thread.sleep(delayMs);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
-        System.out.println();
-    }
-}
-
-
-class Th3 extends Thread {
-    private final int from = 234;
-    private final int to = 987;
-
-    public Th3(String name) {
-        super(name);
-    }
-
-    @Override
-    public void run() {
-        System.out.println(getName() + " începe Sarcina 3 (parcurgere de la început " + from + " .. " + to + ").");
-
-        long count = 0;
-        long sum = 0;
-        for (int i = from; i <= to; i++) {
-            count++;
-            sum += i;
             
-            if (count % 100 == 0) {
-                Thread.yield();
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
+        
+        }
+    }
+
+    static class Th2 extends Thread {
+        public Th2() { setName("Th2"); }
+
+        @Override
+        public void run() {
+            System.out.println(getName() + " – Sarcina 2: sume poziții impare (de la sfârșit)");
+            long total = 0;
+
+            for (int i = oddCount - 1; i >= 0; i -= 2) {
+                if (i - 1 >= 0) {
+                    int sum = oddPositions[i] + oddPositions[i - 1];
+                    total += sum;
+                    System.out.print(sum + " ");
                 }
             }
+            System.out.println("\n" + getName() + " total = " + total);
+
+            
+            
+        }
+    }
+
+    static class Th3 extends Thread {
+        public Th3() { setName("Th3"); }
+
+        @Override
+        public void run() {
+            System.out.println(getName() + " – Sarcina 3: parcurgere interval [234, 987]");
+            for (int i = 234; i <= 987; i++) {
+                System.out.print(i + " ");
+            }
+        }
+    }
+
+    static class Th4 extends Thread {
+        public Th4() { setName("Th4"); }
+
+        @Override
+        public void run() {
+            System.out.println(getName() + " – Sarcina 4: parcurgere interval [123, 890]");
+            for (int i = 890; i >= 123; i--) {
+                System.out.print(i + " ");
+            }
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+
+        Random rand = new Random();
+        for (int i = 0; i < ARRAY_SIZE; i++) {
+            b[i] = rand.nextInt(100) + 1;
+            if (b[i] % 2 != 0) oddCount++;
         }
 
-        System.out.println(getName() + " a parcurs " + count + " numere. Suma = " + sum);
+        oddPositions = new int[oddCount];
+        int k = 0;
+        for (int i = 0; i < ARRAY_SIZE; i++) {
+            if (b[i] % 2 != 0) {
+                oddPositions[k++] = i + 1;
+            }
+        }
+
+        Th1 t1 = new Th1();
+        Th2 t2 = new Th2();
+        Th3 t3 = new Th3();
+        Th4 t4 = new Th4();
 
         
-        delayedPrintln("Disciplina: Programarea Concurenta si Distributiva", 100);
-    }
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
 
-    private void delayedPrintln(String s, int delayMs) {
-        for (char c : s.toCharArray()) {
-            System.out.print(c);
-            try {
-                Thread.sleep(delayMs);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
-        System.out.println();
-    }
-}
+        t3.start();
+        while (t3.isAlive()) Thread.sleep(50);
 
+        t4.start();
+        while (t4.isAlive()) Thread.sleep(50);
 
-class Th4 extends Thread {
-    private final int from = 123;
-    private final int to = 890;
-    private final Thread th3Ref;
+        System.out.println("\n---------------- TEXT FINAL ----------------");
 
-    public Th4(String name, Thread th3Ref) {
-        super(name);
-        this.th3Ref = th3Ref;
-    }
+       
+        printWithDelay("Nume:" + INFO_NUME, "Th2");
+        printWithDelay("Grupa:" + INFO_GRUPA, "Th4");
+        printWithDelay("Prenume:" + INFO_PRENUME, "Th1");
+        printWithDelay("Disciplina:" + INFO_DISCIPLINA, "Th3");
 
-    @Override
-    public void run() {
-        System.out.println(getName() + " începe Sarcina 4 (parcurgere de la " + to + " la " + from + " invers).");
-
-        long count = 0;
-        long sum = 0;
-        for (int i = to; i >= from; i--) {
-            count++;
-            sum += i;
-            if (count % 200 == 0) {
-                
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-            }
-        }
-
-        System.out.println(getName() + " a parcurs " + count + " numere (invers). Suma = " + sum);
-
-        
-        if (th3Ref != null) {
-            System.out.println(getName() + " așteaptă terminarea " + th3Ref.getName() + " (verificare isAlive + sleep).");
-            while (th3Ref.isAlive()) {
-                try {
-                    Thread.sleep(50); 
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-            }
-        }
-
-        
-        delayedPrintln("Grupa: CR-231", 100);
-    }
-
-    private void delayedPrintln(String s, int delayMs) {
-        for (char c : s.toCharArray()) {
-            System.out.print(c);
-            try {
-                Thread.sleep(delayMs);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
-        System.out.println();
+        System.out.println("\nProgramul s-a terminat.");
     }
 }
