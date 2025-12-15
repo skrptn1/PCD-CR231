@@ -1,10 +1,16 @@
 import javax.swing.*;
 
 public class Lab31 {
-    private static final String SURNAME    = "Untila,Mocreac";
-   
+    private static final String SURNAME = "Untila,Mocreac";
 
     private static JTextArea area;
+
+    private static final Object LOCK12 = new Object();
+    private static boolean TH1_DONE = false;
+
+    private static final Object LOCK34 = new Object();
+    private static boolean TH3_DONE = false;
+    private static final String FIRST_NAME = "Maxim,Cristian";
 
     private static void append(String s) {
         if (SwingUtilities.isEventDispatchThread()) {
@@ -17,7 +23,8 @@ public class Lab31 {
             });
         }
     }
-    private static final String GROUP      = "CR-231";
+    private static final String DISCIPLINA = "Programarea concurenta si distributiva";
+
     private static void printWithDelay(String prefix, String text) {
         append(prefix);
         for (char ch : text.toCharArray()) {
@@ -31,10 +38,10 @@ public class Lab31 {
         }
         append("\n");
     }
-    private static final String FIRST_NAME = "Maxim,Cristian";
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Lab 3 - Sincronizare cu metodele clasei Thread (GUI)");
+            JFrame frame = new JFrame("Lab 3 - Sincronizare (GUI)");
             frame.setSize(1100, 780);
 
             area = new JTextArea();
@@ -53,14 +60,14 @@ public class Lab31 {
             new Thread(Lab31::runLab, "Controller").start();
         });
     }
+    private static final String GROUP = "CR-231";
 
-    private static final String DISCIPLINA = "Programarea concurenta si distributiva";
     private static void runLab() {
         int[] a = new int[100];
         for (int i = 0; i < a.length; i++) a[i] = i + 1;
 
         append("Lucrarea de laborator nr. 3\n");
-        append("Tema: Sincronizarea firelor de executie utilizand metodele clasei Thread\n\n");
+        append("Tema: Sincronizarea firelor de executie\n\n");
 
         append("Tablou a[100]:\n");
         for (int i = 0; i < a.length; i++) {
@@ -70,10 +77,10 @@ public class Lab31 {
         append("\n\n");
 
         ThreadSarcina1 th1 = new ThreadSarcina1(a);
-        ThreadSarcina2 th2 = new ThreadSarcina2(a, th1);
+        ThreadSarcina2 th2 = new ThreadSarcina2(a);
 
+        ThreadInterval3 th3 = new ThreadInterval3(567, 1002);
         ThreadInterval4 th4 = new ThreadInterval4(567, 1100);
-        ThreadInterval3 th3 = new ThreadInterval3(567, 1002, th4);
 
         th1.setName("Th1");
         th2.setName("Th2");
@@ -142,26 +149,31 @@ public class Lab31 {
             }
 
             append(getName() + ": Rezultat - suma produselor = " + suma + " (" + cnt + " perechi)\n\n");
+
+            synchronized (LOCK12) {
+                TH1_DONE = true;
+                LOCK12.notify();
+            }
         }
     }
 
     static class ThreadSarcina2 extends Thread {
         private final int[] data;
-        private final Thread th1;
 
-        ThreadSarcina2(int[] data, Thread th1) {
+        ThreadSarcina2(int[] data) {
             this.data = data;
-            this.th1 = th1;
         }
 
         @Override
         public void run() {
-            while (th1.isAlive()) {
-                try {
-                    th1.join(10);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
+            synchronized (LOCK12) {
+                while (!TH1_DONE) {
+                    try {
+                        LOCK12.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
                 }
             }
 
@@ -188,25 +200,24 @@ public class Lab31 {
 
     static class ThreadInterval3 extends Thread {
         private final int start, end;
-        private final ThreadInterval4 th4;
 
-        ThreadInterval3(int start, int end, ThreadInterval4 th4) {
+        ThreadInterval3(int start, int end) {
             this.start = start;
             this.end = end;
-            this.th4 = th4;
         }
 
         @Override
         public void run() {
             StringBuilder sb = new StringBuilder();
             sb.append(getName()).append(": ");
-            for (int i = start; i <= end; i++) {
-                sb.append(i).append(' ');
-            }
+            for (int i = start; i <= end; i++) sb.append(i).append(' ');
             sb.append('\n');
             append(sb.toString());
-//
-            th4.interrupt();
+
+            synchronized (LOCK34) {
+                TH3_DONE = true;
+                LOCK34.notifyAll();
+            }
         }
     }
 
@@ -220,16 +231,20 @@ public class Lab31 {
 
         @Override
         public void run() {
-            try {//
-                Thread.sleep(Long.MAX_VALUE);
-            } catch (InterruptedException ignored) {
+            synchronized (LOCK34) {
+                while (!TH3_DONE) {
+                    try {
+                        LOCK34.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
             }
 
             StringBuilder sb = new StringBuilder();
             sb.append(getName()).append(": ");
-            for (int i = end; i >= start; i--) {
-                sb.append(i).append(' ');
-            }
+            for (int i = end; i >= start; i--) sb.append(i).append(' ');
             sb.append('\n');
             append(sb.toString());
         }
