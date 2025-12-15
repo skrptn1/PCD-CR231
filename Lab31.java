@@ -1,357 +1,239 @@
 import javax.swing.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
 
 public class Lab31 {
 
-    // Append în JTextArea în ordine (fără “amestecare”)
-    static void appendArea(JTextArea area, String text) {
-        if (area == null) return;
+    private static final String SURNAME    = "Untila,Mocreac";
+    private static final String GROUP      = "CR-231";
+    private static final String FIRST_NAME = "Maxim,Cristian";
+    private static final String DISCIPLINA = "Programarea concurenta si distributiva";
+
+    private static JTextArea area;
+
+    private static void append(String s) {
         if (SwingUtilities.isEventDispatchThread()) {
-            area.append(text);
+            area.append(s);
+            area.setCaretPosition(area.getDocument().getLength());
         } else {
-            try {
-                SwingUtilities.invokeAndWait(() -> area.append(text));
-            } catch (Exception e) {
-                SwingUtilities.invokeLater(() -> area.append(text));
-            }
+            SwingUtilities.invokeLater(() -> {
+                area.append(s);
+                area.setCaretPosition(area.getDocument().getLength());
+            });
         }
     }
 
+    private static void printWithDelay(String prefix, String text) {
+        append(prefix);
+        for (char ch : text.toCharArray()) {
+            append(String.valueOf(ch));
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+        append("\n");
+    }
+
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Lab 3 - Sincronizare cu metodele clasei Thread (GUI)");
+            frame.setSize(1100, 780);
 
-        JFrame frame = new JFrame("Lab 3 - Sarcina 1, 2, 3 și 4");
-        frame.setSize(900, 700);
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        frame.add(scrollPane);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
+            area = new JTextArea();
+            area.setEditable(false);
+            area.setLineWrap(false);
 
+            JScrollPane sp = new JScrollPane(area);
+            sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+            frame.setContentPane(sp);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+
+            new Thread(Lab31::runLab, "Controller").start();
+        });
+    }
+
+    private static void runLab() {
         int[] a = new int[100];
+        for (int i = 0; i < a.length; i++) a[i] = i + 1;
+
+        append("Lucrarea de laborator nr. 3\n");
+        append("Tema: Sincronizarea firelor de executie utilizand metodele clasei Thread\n\n");
+
+        append("Tablou a[100]:\n");
         for (int i = 0; i < a.length; i++) {
-            a[i] = i + 1;
+            append(a[i] + " ");
+            if ((i + 1) % 30 == 0) append("\n");
         }
+        append("\n\n");
 
-        StringBuilder sb = new StringBuilder("Tablou a[100]:\n");
-        for (int i = 0; i < a.length; i++) {
-            sb.append(a[i]).append(' ');
-            if ((i + 1) % 30 == 0) sb.append('\n');
-        }
-        sb.append("\n\n");
+        ThreadSarcina1 th1 = new ThreadSarcina1(a);
+        ThreadSarcina2 th2 = new ThreadSarcina2(a, th1);
 
-        String head = sb.toString();
-        System.out.print(head);
-        appendArea(textArea, head);
-
-        String descriere =
-                "După finalizarea realizării sarcinilor firelor de execuţie, " +
-                "thread-ul Th2 va afişa Numele studentului care a efectuat lucrarea dată de laborator, " +
-                "Th4 va afișa grupa, Th1 va afișa Prenumele studentului, Th3 va afișa denumirea disciplinei (pe lung). " +
-                "Literele textului vor apărea pe ecran cu un interval de 100 milisecunde.\n\n";
-        System.out.print(descriere);
-        appendArea(textArea, descriere);
-
-        // 1) Barieră: toate thread-urile termină “sarcinile” (output numeric) înainte de textele finale
-        CountDownLatch tasksDone = new CountDownLatch(4);
-
-        // 2) Ordine finală: Th2 -> Th4 -> Th1 -> Th3
-        Semaphore goTh4 = new Semaphore(0);
-        Semaphore goTh1 = new Semaphore(0);
-        Semaphore goTh3 = new Semaphore(0);
-
-        // Textele cerute (MODIFICATE conform cerinței tale)
-        String disciplina = "Programarea Concurenta si Distributiva";
-        String grupa = "CR-231";
-
-        ThreadSarcina1 th1 = new ThreadSarcina1(a, "Maxim", textArea, tasksDone, goTh1, goTh3);
-        ThreadSarcina2 th2 = new ThreadSarcina2(a, "UNTILA", textArea, tasksDone, goTh4);
-
-        ThreadInterval3 th3 = new ThreadInterval3(567, 1002, disciplina, textArea, tasksDone, goTh3);
-        ThreadInterval4 th4 = new ThreadInterval4(567, 1100, grupa, textArea, tasksDone, goTh4, goTh1);
+        ThreadInterval4 th4 = new ThreadInterval4(567, 1100);
+        ThreadInterval3 th3 = new ThreadInterval3(567, 1002, th4);
 
         th1.setName("Th1");
         th2.setName("Th2");
         th3.setName("Th3");
         th4.setName("Th4");
 
+        append("Starting Thread 1\n");
         th1.start();
+
+        append("Starting Thread 2\n");
         th2.start();
+
+        try {
+            th2.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+
+        append("Starting Thread 3\n");
         th3.start();
+
+        append("Starting Thread 4\n");
         th4.start();
-    }
-}
 
-// ==============================
-//       SARCINA 1 – Th1
-// ==============================
-class ThreadSarcina1 extends Thread {
-    private final int[] data;
-    private final String prenume;
-    private final JTextArea textArea;
-
-    private final CountDownLatch tasksDone;
-    private final Semaphore myTurn;
-    private final Semaphore nextTurn;
-
-    public ThreadSarcina1(int[] data, String prenume, JTextArea textArea,
-                          CountDownLatch tasksDone, Semaphore myTurn, Semaphore nextTurn) {
-        this.data = data;
-        this.prenume = prenume;
-        this.textArea = textArea;
-        this.tasksDone = tasksDone;
-        this.myTurn = myTurn;
-        this.nextTurn = nextTurn;
-    }
-
-    @Override
-    public void run() {
-        long sumaProd = 0;
-        int cntPerechi = 0;
-
-        StringBuilder sbLoc = new StringBuilder();
-        sbLoc.append(getName())
-                .append(": Sarcina 1 - produse pe poziții pare (1-based), de la început:\n");
-
-        // perechi: (2,4), (4,6), ... (98,100)
-        for (int i = 1; i <= 97; i += 2) {
-            int j = i + 2;
-            long prod = (long) data[i] * data[j];
-            sumaProd += prod;
-            cntPerechi++;
-
-            sbLoc.append(getName())
-                    .append(": (poz ").append(i + 1).append(", ").append(j + 1).append(") : ")
-                    .append(data[i]).append(" * ").append(data[j]).append(" = ").append(prod)
-                    .append("\n");
+        try {
+            th3.join();
+            th4.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
         }
 
-        sbLoc.append(getName())
-                .append(": Rezultat - suma produselor = ")
-                .append(sumaProd)
-                .append(" (").append(cntPerechi).append(" perechi)\n\n");
+        append("\n");
 
-        String out = sbLoc.toString();
-        System.out.print(out);
-        Lab31.appendArea(textArea, out);
-
-        tasksDone.countDown();
-        try { tasksDone.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-
-        // așteaptă rândul: Th4 -> Th1
-        try { myTurn.acquire(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-
-        // PRENUME cu 100ms/literă
-        String prefix = getName() + ": Prenume student: ";
-        System.out.print(prefix);
-        Lab31.appendArea(textArea, prefix);
-
-        for (char ch : prenume.toCharArray()) {
-            String s = String.valueOf(ch);
-            System.out.print(s);
-            Lab31.appendArea(textArea, s);
-            try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-        }
-
-        System.out.print("\n");
-        Lab31.appendArea(textArea, "\n");
-
-        // dă drumul la Th3
-        nextTurn.release();
-    }
-}
-
-// ==============================
-//       SARCINA 2 – Th2
-// ==============================
-class ThreadSarcina2 extends Thread {
-    private final int[] data;
-    private final String nume;
-    private final JTextArea textArea;
-
-    private final CountDownLatch tasksDone;
-    private final Semaphore nextTurn; // pornește Th4
-
-    public ThreadSarcina2(int[] data, String nume, JTextArea textArea,
-                          CountDownLatch tasksDone, Semaphore nextTurn) {
-        this.data = data;
-        this.nume = nume;
-        this.textArea = textArea;
-        this.tasksDone = tasksDone;
-        this.nextTurn = nextTurn;
+        printWithDelay("Th2: ", SURNAME);
+        printWithDelay("Th4: ", GROUP);
+        printWithDelay("Th1: ", FIRST_NAME);
+        printWithDelay("Th3: ", DISCIPLINA);
     }
 
-    @Override
-    public void run() {
-        long sumaProd = 0;
-        int cntPerechi = 0;
+    static class ThreadSarcina1 extends Thread {
+        private final int[] data;
 
-        StringBuilder sbLoc = new StringBuilder();
-        sbLoc.append(getName())
-                .append(": Sarcina 2 - produse pe poziții pare (1-based), de la sfârșit:\n");
-
-        // perechi: (98,100), (96,98), ... (2,4)
-        for (int i = 99; i >= 3; i -= 2) {
-            int j = i - 2;
-            long prod = (long) data[j] * data[i];
-            sumaProd += prod;
-            cntPerechi++;
-
-            sbLoc.append(getName())
-                    .append(": (poz ").append(j + 1).append(", ").append(i + 1).append(") : ")
-                    .append(data[j]).append(" * ").append(data[i]).append(" = ").append(prod)
-                    .append("\n");
+        ThreadSarcina1(int[] data) {
+            this.data = data;
         }
 
-        sbLoc.append(getName())
-                .append(": Rezultat - suma produselor = ")
-                .append(sumaProd)
-                .append(" (").append(cntPerechi).append(" perechi)\n\n");
+        @Override
+        public void run() {
+            append(getName() + ": Sarcina 1 - produse pe pozitii pare (1-based), de la inceput:\n");
 
-        String out = sbLoc.toString();
-        System.out.print(out);
-        Lab31.appendArea(textArea, out);
+            long suma = 0;
+            int cnt = 0;
 
-        tasksDone.countDown();
-        try { tasksDone.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
+            for (int pos = 2; pos <= 98; pos += 2) {
+                int i = pos - 1;
+                int j = pos + 1;
 
-        // NUME cu 100ms/literă (primul în ordinea finală)
-        String prefix = getName() + ": Nume student: ";
-        System.out.print(prefix);
-        Lab31.appendArea(textArea, prefix);
+                long prod = (long) data[i] * data[j];
+                suma += prod;
+                cnt++;
 
-        for (char ch : nume.toCharArray()) {
-            String s = String.valueOf(ch);
-            System.out.print(s);
-            Lab31.appendArea(textArea, s);
-            try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
+                append(getName() + ": (poz " + pos + ", " + (pos + 2) + ") : "
+                        + data[i] + " * " + data[j] + " = " + prod + "\n");
+            }
+
+            append(getName() + ": Rezultat - suma produselor = " + suma + " (" + cnt + " perechi)\n\n");
         }
-
-        System.out.print("\n");
-        Lab31.appendArea(textArea, "\n");
-
-        // dă drumul la Th4
-        nextTurn.release();
-    }
-}
-
-// ==============================
-//       SARCINA 3 – Th3
-// ==============================
-class ThreadInterval3 extends Thread {
-    private final int start;
-    private final int end;
-    private final String disciplina;
-    private final JTextArea textArea;
-
-    private final CountDownLatch tasksDone;
-    private final Semaphore myTurn;
-
-    public ThreadInterval3(int start, int end, String disciplina, JTextArea textArea,
-                           CountDownLatch tasksDone, Semaphore myTurn) {
-        this.start = start;
-        this.end = end;
-        this.disciplina = disciplina;
-        this.textArea = textArea;
-        this.tasksDone = tasksDone;
-        this.myTurn = myTurn;
     }
 
-    @Override
-    public void run() {
-        StringBuilder oneLine = new StringBuilder(getName() + ": ");
-        for (int i = start; i <= end; i++) {
-            oneLine.append(i).append(" ");
-            try { Thread.sleep(3); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-        }
-        oneLine.append("\n");
+    static class ThreadSarcina2 extends Thread {
+        private final int[] data;
+        private final Thread th1;
 
-        String out = oneLine.toString();
-        System.out.print(out);
-        Lab31.appendArea(textArea, out);
-
-        tasksDone.countDown();
-        try { tasksDone.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-
-        // așteaptă rândul: Th1 -> Th3 (ultimul)
-        try { myTurn.acquire(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-
-        String prefix = getName() + ": Disciplina (pe lung): ";
-        System.out.print(prefix);
-        Lab31.appendArea(textArea, prefix);
-
-        for (char ch : disciplina.toCharArray()) {
-            String s = String.valueOf(ch);
-            System.out.print(s);
-            Lab31.appendArea(textArea, s);
-            try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
+        ThreadSarcina2(int[] data, Thread th1) {
+            this.data = data;
+            this.th1 = th1;
         }
 
-        System.out.print("\n");
-        Lab31.appendArea(textArea, "\n");
-    }
-}
+        @Override
+        public void run() {
+            while (th1.isAlive()) {
+                try {
+                    th1.join(10);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
 
-// ==============================
-//       SARCINA 4 – Th4
-// ==============================
-class ThreadInterval4 extends Thread {
-    private final int start;
-    private final int end;
-    private final String grupa;
-    private final JTextArea textArea;
+            append(getName() + ": Sarcina 2 - produse pe pozitii pare (1-based), de la sfarsit:\n");
 
-    private final CountDownLatch tasksDone;
-    private final Semaphore myTurn;   // pornește după Th2
-    private final Semaphore nextTurn; // pornește Th1
+            long suma = 0;
+            int cnt = 0;
 
-    public ThreadInterval4(int start, int end, String grupa, JTextArea textArea,
-                           CountDownLatch tasksDone, Semaphore myTurn, Semaphore nextTurn) {
-        this.start = start;
-        this.end = end;
-        this.grupa = grupa;
-        this.textArea = textArea;
-        this.tasksDone = tasksDone;
-        this.myTurn = myTurn;
-        this.nextTurn = nextTurn;
+            for (int pos = 100; pos >= 4; pos -= 2) {
+                int i = pos - 1;
+                int j = pos - 3;
+
+                long prod = (long) data[j] * data[i];
+                suma += prod;
+                cnt++;
+
+                append(getName() + ": (poz " + (pos - 2) + ", " + pos + ") : "
+                        + data[j] + " * " + data[i] + " = " + prod + "\n");
+            }
+
+            append(getName() + ": Rezultat - suma produselor = " + suma + " (" + cnt + " perechi)\n\n");
+        }
     }
 
-    @Override
-    public void run() {
-        StringBuilder oneLine = new StringBuilder(getName() + ": ");
-        for (int i = end; i >= start; i--) {
-            oneLine.append(i).append(" ");
-            try { Thread.sleep(3); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-        }
-        oneLine.append("\n");
+    static class ThreadInterval3 extends Thread {
+        private final int start, end;
+        private final ThreadInterval4 th4;
 
-        String out = oneLine.toString();
-        System.out.print(out);
-        Lab31.appendArea(textArea, out);
-
-        tasksDone.countDown();
-        try { tasksDone.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-
-        // așteaptă rândul: Th2 -> Th4
-        try { myTurn.acquire(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-
-        // GRUPA (exact: "Grupa:CR-231")
-        String prefix = getName() + ": Grupa:";
-        System.out.print(prefix);
-        Lab31.appendArea(textArea, prefix);
-
-        for (char ch : grupa.toCharArray()) {
-            String s = String.valueOf(ch);
-            System.out.print(s);
-            Lab31.appendArea(textArea, s);
-            try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
+        ThreadInterval3(int start, int end, ThreadInterval4 th4) {
+            this.start = start;
+            this.end = end;
+            this.th4 = th4;
         }
 
-        System.out.print("\n");
-        Lab31.appendArea(textArea, "\n");
+        @Override
+        public void run() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(getName()).append(": ");
+            for (int i = start; i <= end; i++) {
+                sb.append(i).append(' ');
+            }
+            sb.append('\n');
+            append(sb.toString());
 
-        // dă drumul la Th1
-        nextTurn.release();
+            th4.interrupt();
+        }
+    }
+
+    static class ThreadInterval4 extends Thread {
+        private final int start, end;
+
+        ThreadInterval4(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(Long.MAX_VALUE);
+            } catch (InterruptedException ignored) {
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(getName()).append(": ");
+            for (int i = end; i >= start; i--) {
+                sb.append(i).append(' ');
+            }
+            sb.append('\n');
+            append(sb.toString());
+        }
     }
 }
