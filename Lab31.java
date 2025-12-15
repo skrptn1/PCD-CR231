@@ -2,9 +2,7 @@ import javax.swing.*;
 
 public class Lab31 {
     private static final String SURNAME    = "Untila,Mocreac";
-    private static final String GROUP      = "CR-231";
-    private static final String FIRST_NAME = "Maxim,Cristian";
-    private static final String DISCIPLINA = "Programarea concurenta si distributiva";
+   
 
     private static JTextArea area;
 
@@ -19,7 +17,7 @@ public class Lab31 {
             });
         }
     }
-
+    private static final String GROUP      = "CR-231";
     private static void printWithDelay(String prefix, String text) {
         append(prefix);
         for (char ch : text.toCharArray()) {
@@ -33,7 +31,7 @@ public class Lab31 {
         }
         append("\n");
     }
-
+    private static final String FIRST_NAME = "Maxim,Cristian";
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Lab 3 - Sincronizare cu metodele clasei Thread (GUI)");
@@ -56,6 +54,7 @@ public class Lab31 {
         });
     }
 
+    private static final String DISCIPLINA = "Programarea concurenta si distributiva";
     private static void runLab() {
         int[] a = new int[100];
         for (int i = 0; i < a.length; i++) a[i] = i + 1;
@@ -206,7 +205,7 @@ public class Lab31 {
             }
             sb.append('\n');
             append(sb.toString());
-
+//
             th4.interrupt();
         }
     }
@@ -221,7 +220,7 @@ public class Lab31 {
 
         @Override
         public void run() {
-            try {
+            try {//
                 Thread.sleep(Long.MAX_VALUE);
             } catch (InterruptedException ignored) {
             }
