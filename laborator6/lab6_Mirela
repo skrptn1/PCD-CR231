@@ -6,75 +6,107 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class lab6_Mirela {
 
+    // numarul de producatori
     static final int NR_PROD = 3;
+    // numarul de consumatori
     static final int NR_CONS = 3;
+    // capacitatea maxima a bufferului
     static final int CAP = 6;
+    // numarul total de elemente produse si consumate
     static final int TOTAL = 42;
+    // vocalele care pot fi produse
     static final char[] VOCALE = {'A', 'E', 'I', 'O', 'U'};
 
     public static void main(String[] args) {
 
+        // crearea ferestrei grafice
         JFrame frame = new JFrame("Producator - Consumator");
         frame.setSize(700, 450);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        // zona unde se afiseaza mesajele
         JTextArea log = new JTextArea();
         log.setEditable(false);
         frame.add(new JScrollPane(log));
         frame.setVisible(true);
 
+        // bufferul comun pentru producatori si consumatori
         Buffer buffer = new Buffer(log);
+
+        // phaser este folosit pentru a alterna fazele:
+        // producere (faza para) si consumare (faza impara)
         Phaser phaser = new Phaser(1);
 
+        // thread pool pentru producatori si consumatori
         ExecutorService pool = Executors.newFixedThreadPool(NR_PROD + NR_CONS);
 
+        // pornirea producatorilor
         for (int i = 1; i <= NR_PROD; i++) {
-            phaser.register();
+            phaser.register(); // inregistram thread-ul in phaser
             pool.execute(new Producator(buffer, phaser, "Producator-" + i));
         }
 
+        // pornirea consumatorilor
         for (int i = 1; i <= NR_CONS; i++) {
-            phaser.register();
+            phaser.register(); // inregistram thread-ul in phaser
             pool.execute(new Consumator(buffer, phaser, "Consumator-" + i));
         }
 
+        // thread-ul principal iese din phaser
         phaser.arriveAndDeregister();
+
+        // inchidem pool-ul dupa lansarea task-urilor
         pool.shutdown();
     }
 
-    // ================= BUFFER =================
+    // ================= buffer =================
+    // clasa buffer reprezinta zona comuna unde se produc si se consuma date
     static class Buffer {
+        // structura de date unde sunt pastrate vocalele
         ArrayDeque<Character> date = new ArrayDeque<>();
+
+        // lock pentru acces sincronizat la buffer
         ReentrantLock lock = new ReentrantLock(true);
+
+        // generator de valori aleatoare
         Random rnd = new Random();
 
+        // contoare pentru elemente produse si consumate
         int produse = 0;
         int consumate = 0;
+
+        // indica daca procesul s-a terminat
         boolean gata = false;
 
+        // zona de afisare din interfata
         JTextArea log;
 
         Buffer(JTextArea log) {
             this.log = log;
         }
 
+        // afiseaza mesajele in siguranta in interfata swing
         void afisare(String msg) {
             SwingUtilities.invokeLater(() -> log.append(msg + "\n"));
         }
 
+        // metoda apelata de producatori
         boolean produce(String nume) {
             lock.lock();
             try {
+                // nu se produce daca s-a atins limita sau bufferul este plin
                 if (produse >= TOTAL || date.size() == CAP) return false;
 
+                // se genereaza o vocala aleatorie
                 char c = VOCALE[rnd.nextInt(VOCALE.length)];
                 date.addLast(c);
                 produse++;
 
                 afisare(nume + " produce " + c + " | " + date);
 
+                // mesaj cand bufferul este plin
                 if (date.size() == CAP)
-                    afisare(">>> Buffer plin");
+                    afisare(">>> buffer plin");
 
                 return true;
             } finally {
@@ -82,9 +114,11 @@ public class lab6_Mirela {
             }
         }
 
+        // metoda apelata de consumatori
         boolean consuma(String nume) {
             lock.lock();
             try {
+                // nu se consuma daca bufferul este gol
                 if (date.isEmpty()) return false;
 
                 char c = date.removeFirst();
@@ -92,12 +126,14 @@ public class lab6_Mirela {
 
                 afisare(nume + " consuma " + c + " | " + date);
 
+                // mesaj cand bufferul devine gol
                 if (date.isEmpty())
-                    afisare("<<< Buffer gol");
+                    afisare("<<< buffer gol");
 
+                // verificare finalizare proces
                 if (consumate == TOTAL && date.isEmpty() && !gata) {
                     gata = true;
-                    afisare("=== Terminare proces ===");
+                    afisare("=== terminare proces ===");
                 }
 
                 return true;
@@ -106,16 +142,19 @@ public class lab6_Mirela {
             }
         }
 
+        // verifica daca bufferul este plin
         boolean plin() {
             return date.size() == CAP;
         }
 
+        // verifica daca bufferul este gol
         boolean gol() {
             return date.isEmpty();
         }
     }
 
-    // ================= PRODUCATOR =================
+    // ================= producator =================
+    // clasa producator ruleaza ca task in thread pool
     static class Producator implements Runnable {
         Buffer buffer;
         Phaser phaser;
@@ -131,22 +170,26 @@ public class lab6_Mirela {
         public void run() {
             try {
                 while (!buffer.gata) {
+                    // faza para: producere
                     if (phaser.getPhase() % 2 == 0) {
                         while (!buffer.plin() && !buffer.gata) {
                             if (!buffer.produce(nume))
                                 Thread.sleep(40);
                         }
                     }
+                    // asteapta trecerea la urmatoarea faza
                     phaser.arriveAndAwaitAdvance();
                 }
             } catch (Exception ignored) {
             } finally {
+                // scoate thread-ul din phaser
                 phaser.arriveAndDeregister();
             }
         }
     }
 
-    // ================= CONSUMATOR =================
+    // ================= consumator =================
+    // clasa consumator ruleaza ca task in thread pool
     static class Consumator implements Runnable {
         Buffer buffer;
         Phaser phaser;
@@ -162,16 +205,19 @@ public class lab6_Mirela {
         public void run() {
             try {
                 while (!buffer.gata) {
+                    // faza impara: consumare
                     if (phaser.getPhase() % 2 == 1) {
                         while (!buffer.gol() && !buffer.gata) {
                             if (!buffer.consuma(nume))
                                 Thread.sleep(40);
                         }
                     }
+                    // asteapta trecerea la urmatoarea faza
                     phaser.arriveAndAwaitAdvance();
                 }
             } catch (Exception ignored) {
             } finally {
+                // scoate thread-ul din phaser
                 phaser.arriveAndDeregister();
             }
         }
