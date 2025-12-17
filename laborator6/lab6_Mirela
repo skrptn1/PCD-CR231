@@ -1,0 +1,179 @@
+import javax.swing.*;
+import java.util.ArrayDeque;
+import java.util.Random;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class lab6_Mirela {
+
+    static final int NR_PROD = 3;
+    static final int NR_CONS = 3;
+    static final int CAP = 6;
+    static final int TOTAL = 42;
+    static final char[] VOCALE = {'A', 'E', 'I', 'O', 'U'};
+
+    public static void main(String[] args) {
+
+        JFrame frame = new JFrame("Producator - Consumator");
+        frame.setSize(700, 450);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JTextArea log = new JTextArea();
+        log.setEditable(false);
+        frame.add(new JScrollPane(log));
+        frame.setVisible(true);
+
+        Buffer buffer = new Buffer(log);
+        Phaser phaser = new Phaser(1);
+
+        ExecutorService pool = Executors.newFixedThreadPool(NR_PROD + NR_CONS);
+
+        for (int i = 1; i <= NR_PROD; i++) {
+            phaser.register();
+            pool.execute(new Producator(buffer, phaser, "Producator-" + i));
+        }
+
+        for (int i = 1; i <= NR_CONS; i++) {
+            phaser.register();
+            pool.execute(new Consumator(buffer, phaser, "Consumator-" + i));
+        }
+
+        phaser.arriveAndDeregister();
+        pool.shutdown();
+    }
+
+    // ================= BUFFER =================
+    static class Buffer {
+        ArrayDeque<Character> date = new ArrayDeque<>();
+        ReentrantLock lock = new ReentrantLock(true);
+        Random rnd = new Random();
+
+        int produse = 0;
+        int consumate = 0;
+        boolean gata = false;
+
+        JTextArea log;
+
+        Buffer(JTextArea log) {
+            this.log = log;
+        }
+
+        void afisare(String msg) {
+            SwingUtilities.invokeLater(() -> log.append(msg + "\n"));
+        }
+
+        boolean produce(String nume) {
+            lock.lock();
+            try {
+                if (produse >= TOTAL || date.size() == CAP) return false;
+
+                char c = VOCALE[rnd.nextInt(VOCALE.length)];
+                date.addLast(c);
+                produse++;
+
+                afisare(nume + " produce " + c + " | " + date);
+
+                if (date.size() == CAP)
+                    afisare(">>> Buffer plin");
+
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        boolean consuma(String nume) {
+            lock.lock();
+            try {
+                if (date.isEmpty()) return false;
+
+                char c = date.removeFirst();
+                consumate++;
+
+                afisare(nume + " consuma " + c + " | " + date);
+
+                if (date.isEmpty())
+                    afisare("<<< Buffer gol");
+
+                if (consumate == TOTAL && date.isEmpty() && !gata) {
+                    gata = true;
+                    afisare("=== Terminare proces ===");
+                }
+
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        boolean plin() {
+            return date.size() == CAP;
+        }
+
+        boolean gol() {
+            return date.isEmpty();
+        }
+    }
+
+    // ================= PRODUCATOR =================
+    static class Producator implements Runnable {
+        Buffer buffer;
+        Phaser phaser;
+        String nume;
+
+        Producator(Buffer buffer, Phaser phaser, String nume) {
+            this.buffer = buffer;
+            this.phaser = phaser;
+            this.nume = nume;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (!buffer.gata) {
+                    if (phaser.getPhase() % 2 == 0) {
+                        while (!buffer.plin() && !buffer.gata) {
+                            if (!buffer.produce(nume))
+                                Thread.sleep(40);
+                        }
+                    }
+                    phaser.arriveAndAwaitAdvance();
+                }
+            } catch (Exception ignored) {
+            } finally {
+                phaser.arriveAndDeregister();
+            }
+        }
+    }
+
+    // ================= CONSUMATOR =================
+    static class Consumator implements Runnable {
+        Buffer buffer;
+        Phaser phaser;
+        String nume;
+
+        Consumator(Buffer buffer, Phaser phaser, String nume) {
+            this.buffer = buffer;
+            this.phaser = phaser;
+            this.nume = nume;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (!buffer.gata) {
+                    if (phaser.getPhase() % 2 == 1) {
+                        while (!buffer.gol() && !buffer.gata) {
+                            if (!buffer.consuma(nume))
+                                Thread.sleep(40);
+                        }
+                    }
+                    phaser.arriveAndAwaitAdvance();
+                }
+            } catch (Exception ignored) {
+            } finally {
+                phaser.arriveAndDeregister();
+            }
+        }
+    }
+}
