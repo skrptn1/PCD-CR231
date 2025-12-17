@@ -1,10 +1,10 @@
 package lab4;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.*;
 
 public class Main extends JFrame {
     private JTextArea logArea;
@@ -178,6 +178,7 @@ class Consumator extends Thread {
                 break;
             }
         }
+        // unde se sinhronizeaza consumatorul pentru ca in depozit sa intre  un singur consumator 
 
         gui.log(getName() + "a terminat consumul (" + consumate + " obiecte).");
 
