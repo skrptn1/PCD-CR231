@@ -13,6 +13,13 @@
       "type": "java",
       "name": "SleepingBarber",
       "request": "launch",
+      "mainClass": "SleepingBarber",
+      "projectName": "PCD laborator_6584bccb"
+    },
+    {
+      "type": "java",
+      "name": "SleepingBarber",
+      "request": "launch",
       "mainClass": "Lucru_individual.Mihai.SleepingBarber",
       "projectName": "pcd_dba3d47a"
     },
